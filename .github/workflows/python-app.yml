@@ -26,8 +26,8 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install ruff pytest
-        uv install
+        pip install uv
+        uv sync
     - name: Lint with ruff
       run: |
         ruff check .
