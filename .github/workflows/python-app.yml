@@ -32,11 +32,11 @@ jobs:
     - name: Lint with ruff
       working-directory: backend
       run: |
-        ruff check .
+        python -m ruff check .
     - name: Test with pytest
       working-directory: backend
       run: |
-        pytest
+        python -m pytest
 
     - name: Install datascience dependencies
       working-directory: datascience
@@ -47,8 +47,8 @@ jobs:
     - name: Lint with ruff
       working-directory: datascience
       run: |
-        ruff check .
+        python -m ruff check .
     - name: Test with pytest
       working-directory: datascience
       run: |
-        pytest
+        python -m pytest
