@@ -2,11 +2,11 @@ name: Frontend CI
 
 on:
   push:
-    paths:
-      - 'frontend/**'
+    branches:
+      - master
   pull_request:
-    paths:
-      - 'frontend/**'
+    branches:
+      - master
 
 jobs:
   build-test-lint:
