@@ -21,6 +21,8 @@ gis/
 ├── keys/
 │   └── <service-account>.json   # Local service account key (ignored by Git)
 │
-└── .env                         # GEE_SERVICE_ACCOUNT and GEE_KEY_PATH variables
+├── .env                         # GEE_SERVICE_ACCOUNT and GEE_KEY_PATH variables
+└── tests/
+    └──test_gis.py               # unit tests for all gis functions
 
 ```
