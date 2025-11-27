@@ -31,3 +31,12 @@ dependencies = [
     #Environmental loading
     "python-dotenv>=1.0.1"
 ]
+
+# So the tests for DS exclude GIS subdirectory
+# GIS will test itself - for now...
+[tool.pytest.ini_options]
+norecursedirs = [
+  ".git",
+  ".venv",
+  "gis",
+]
