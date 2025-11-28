@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: datascience/gis
+        working-directory: gis
         
     steps:
     - uses: actions/checkout@v4

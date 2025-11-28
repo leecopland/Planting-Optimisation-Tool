@@ -8,11 +8,33 @@ __pycache__/
 # Common editor files
 .vscode/
 
-#gis files
-datascience/gis/__pycache__/
-datascience/gis/*.pyc
-datascience/gis/.vscode/
-datascience/gis/.DS_Store
-datascience/gis/.env
-datascience/gis/keys
-datascience/gis/assets
+# GIS files
+
+# Bytecode + cache (recursive)
+gis/**/*.pyc
+gis/**/__pycache__/
+gis/.pytest_cache/
+
+# Virtual environment
+gis/.venv/
+
+# Editor / OS artifacts
+gis/.vscode/
+gis/.DS_Store
+.DS_Store
+**/.DS_Store
+
+# Environment variables & secrets
+gis/.env
+gis/keys/
+
+# Assets & temporary data
+gis/assets/
+
+# Local scripts not needed in repo
+gis/main.py
+
+# Test caches
+gis/tests/**/__pycache__/
+gis/tests/.pytest_cache/
+
