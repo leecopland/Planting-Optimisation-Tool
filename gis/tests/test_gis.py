@@ -2,7 +2,13 @@ from unittest.mock import patch, MagicMock
 import builtins
 
 from core.gee_client import init_gee
-from core.geometry_parser import parse_point, parse_multipoint, parse_polygon
+
+from core.geometry_parser import (
+    parse_point,
+    parse_multipoint,
+    parse_polygon,
+    parse_geometry,
+)
 
 
 # Helper to create fake ee module for mocking
@@ -94,3 +100,43 @@ def test_parse_polygon():
         ]
     )
     assert g == fake_ee.Geometry.Polygon.return_value
+
+
+# parse_geometry auto-detection
+
+
+def test_parse_geometry_dispatch():
+    fake_ee = make_fake_ee()
+
+    # ---- Point ----
+    with patch.object(builtins, "__import__", return_value=fake_ee):
+        parse_geometry((-8.55, 125.57))  # no variable assigned
+
+    fake_ee.Geometry.Point.assert_called_once_with([125.57, -8.55])
+    fake_ee.Geometry.Point.reset_mock()
+
+    # ---- MultiPoint ----
+    with patch.object(builtins, "__import__", return_value=fake_ee):
+        parse_geometry([(-8.55, 125.57), (-8.56, 125.58)])  # no variable assigned
+
+    fake_ee.Geometry.MultiPoint.assert_called_once_with(
+        [[125.57, -8.55], [125.58, -8.56]]
+    )
+    fake_ee.Geometry.MultiPoint.reset_mock()
+
+    # ---- Polygon ----
+    polygon_raw = [
+        [
+            (-8.55, 125.57),
+            (-8.56, 125.57),
+            (-8.56, 125.58),
+            (-8.55, 125.58),
+            (-8.55, 125.57),
+        ]
+    ]
+
+    with patch.object(builtins, "__import__", return_value=fake_ee):
+        g_polygon = parse_geometry(polygon_raw)
+
+    fake_ee.Geometry.Polygon.assert_called_once()
+    assert g_polygon == fake_ee.Geometry.Polygon.return_value
