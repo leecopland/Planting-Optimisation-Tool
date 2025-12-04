@@ -1,4 +1,4 @@
-# Ignore root node modules
+# Automatically created by ruff.
 node_modules/
 
 # Python artifacts
@@ -18,24 +18,19 @@ gis/.pytest_cache/
 # Virtual environment
 gis/.venv/
 
-# Editor / OS artifacts
+# Editor/OS artifacts
 gis/.vscode/
 gis/.DS_Store
-.DS_Store
+.DS_Store 
 **/.DS_Store
 
 # Environment variables & secrets
 gis/.env
 gis/keys/
 
-# Assets & temporary data
+# Assessts & temprary data
 gis/assets/
-
-# Local scripts not needed in repo
-gis/main.py
-gis/test_main.py
 
 # Test caches
 gis/tests/**/__pycache__/
-gis/tests/.pytest_cache/
-
+gis/tests/.pytest_cache
