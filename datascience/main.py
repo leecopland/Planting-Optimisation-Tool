@@ -1,5 +1,5 @@
 def main():
-    print("Hello from datascience!")
+    print('Hello from datascience!')
 
 
 if __name__ == "__main__":
