@@ -1,5 +1,3 @@
-# Ignore root node modules
-node_modules/
 
 # Python artifacts
 __pycache__/
@@ -10,3 +8,6 @@ __pycache__/
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
+
+# Ignore coverage file
+.coverage
