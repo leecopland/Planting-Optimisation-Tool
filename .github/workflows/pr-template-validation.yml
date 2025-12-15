@@ -17,11 +17,11 @@ jobs:
 
             function getSection(title) {
               const regex = new RegExp(
-                `^##\\s*${title}\\s*$([\\s\\S]*?)(?=^##\\s|$)`,
-                "im"
+                `##\\s*${title}[\\s\\S]*?(?=\\n##\\s|$)`,
+                "i"
               );
               const match = body.match(regex);
-              return match ? match[1].trim() : null;
+              return match ? match[0] : null;
             }
 
             function stripComments(text) {
@@ -39,7 +39,8 @@ jobs:
               if (!sec) return;
 
               const content = stripComments(sec)
-                .replace(/^[-*]\s+\[[ xX]\].*$/gm, "") // remove checkboxes
+                .replace(/^##.*$/m, "")          // remove heading
+                .replace(/^-\s*\[[ xX]\].*$/gm, "") // remove checkboxes
                 .trim();
 
               if (content.length < minLength) {
@@ -48,11 +49,11 @@ jobs:
             }
 
             function countChecked(sec) {
-              return (sec.match(/-\\s*\\[[xX]\\]/g) || []).length;
+              return (sec.match(/-\s*\[[xX]\]/g) || []).length;
             }
 
             function countCheckboxes(sec) {
-              return (sec.match(/-\\s*\\[[ xX]\\]/g) || []).length;
+              return (sec.match(/-\s*\[[ xX]\]/g) || []).length;
             }
 
             function requireAtLeastOneChecked(title) {
@@ -75,11 +76,11 @@ jobs:
               const sec = getSection(title);
               if (!sec) return;
 
-              const otherLine = sec
+              const line = sec
                 .split("\n")
-                .find(l => /-\\s*\\[[xX]\\]\\s*Other/i.test(l));
+                .find(l => /-\s*\[[xX]\]\s*Other/i.test(l));
 
-              if (otherLine && !/Other.*:\\s*\\S+/.test(otherLine)) {
+              if (line && !/Other.*:\s*\S+/.test(line)) {
                 errors.push(`${title}: 'Other' is checked but not described`);
               }
             }
@@ -91,11 +92,11 @@ jobs:
             requireSection("Type of Change");
             requireSection("Checklist");
 
-            // Text enforcement
+            // Text requirements
             requireMeaningfulText("Description", 20);
             requireMeaningfulText("Related Issue / Task", 5);
 
-            // Checkbox enforcement
+            // Checkbox rules
             requireAtLeastOneChecked("Team / Area");
             requireOtherDescription("Team / Area");
 
