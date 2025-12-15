@@ -15,10 +15,13 @@ jobs:
             const body = context.payload.pull_request.body || "";
             const errors = [];
 
-            function section(title) {
-              const regex = new RegExp(`## ${title}[\\s\\S]*?(?=\\n## |$)`, "m");
+            function getSection(title) {
+              const regex = new RegExp(
+                `^##\\s*${title}\\s*$([\\s\\S]*?)(?=^##\\s|$)`,
+                "im"
+              );
               const match = body.match(regex);
-              return match ? match[0] : null;
+              return match ? match[1].trim() : null;
             }
 
             function stripComments(text) {
@@ -26,49 +29,57 @@ jobs:
             }
 
             function requireSection(title) {
-              if (!section(title)) {
+              if (!getSection(title)) {
                 errors.push(`Missing section: ${title}`);
               }
             }
 
-            function requireText(title, minLength = 10) {
-              const sec = section(title);
+            function requireMeaningfulText(title, minLength = 10) {
+              const sec = getSection(title);
               if (!sec) return;
-              const content = stripComments(sec);
+
+              const content = stripComments(sec)
+                .replace(/^[-*]\s+\[[ xX]\].*$/gm, "") // remove checkboxes
+                .trim();
+
               if (content.length < minLength) {
                 errors.push(`${title}: must contain meaningful text`);
               }
             }
 
-            function checkedCount(sec) {
-              return (sec.match(/- \[x\]/gi) || []).length;
+            function countChecked(sec) {
+              return (sec.match(/-\\s*\\[[xX]\\]/g) || []).length;
+            }
+
+            function countCheckboxes(sec) {
+              return (sec.match(/-\\s*\\[[ xX]\\]/g) || []).length;
             }
 
             function requireAtLeastOneChecked(title) {
-              const sec = section(title);
-              if (!sec || checkedCount(sec) === 0) {
+              const sec = getSection(title);
+              if (!sec || countChecked(sec) === 0) {
                 errors.push(`${title}: at least one option must be checked`);
               }
             }
 
             function requireAllChecked(title) {
-              const sec = section(title);
+              const sec = getSection(title);
               if (!sec) return;
-              const total = (sec.match(/- \[[ x]\]/gi) || []).length;
-              if (checkedCount(sec) !== total) {
+
+              if (countChecked(sec) !== countCheckboxes(sec)) {
                 errors.push(`${title}: all checklist items must be checked`);
               }
             }
 
-            function requireOtherText(title) {
-              const sec = section(title);
+            function requireOtherDescription(title) {
+              const sec = getSection(title);
               if (!sec) return;
-              const otherChecked = /- \[x\] Other/i.test(sec);
-              if (!otherChecked) return;
 
-              const lines = stripComments(sec).split("\n");
-              const otherLine = lines.find(l => /Other/i.test(l));
-              if (!otherLine || !/:\s*\S+/.test(otherLine)) {
+              const otherLine = sec
+                .split("\n")
+                .find(l => /-\\s*\\[[xX]\\]\\s*Other/i.test(l));
+
+              if (otherLine && !/Other.*:\\s*\\S+/.test(otherLine)) {
                 errors.push(`${title}: 'Other' is checked but not described`);
               }
             }
@@ -81,15 +92,15 @@ jobs:
             requireSection("Checklist");
 
             // Text enforcement
-            requireText("Description", 20);
-            requireText("Related Issue / Task", 5);
+            requireMeaningfulText("Description", 20);
+            requireMeaningfulText("Related Issue / Task", 5);
 
-            // Checkbox rules
+            // Checkbox enforcement
             requireAtLeastOneChecked("Team / Area");
-            requireOtherText("Team / Area");
+            requireOtherDescription("Team / Area");
 
             requireAtLeastOneChecked("Type of Change");
-            requireOtherText("Type of Change");
+            requireOtherDescription("Type of Change");
 
             requireAllChecked("Checklist");
 
