@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field, EmailStr
+from pydantic import BaseModel, Field, EmailStr, ConfigDict
 from typing import Optional
 
 
@@ -22,8 +22,7 @@ class UserCreate(UserBase):
 class UserRead(UserBase):
     id: int = Field(..., description="The unique database ID of the user.")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Used for authentication requests

@@ -22,6 +22,7 @@ class Settings(BaseSettings):
     POSTGRES_HOST: str = Field(default="localhost")
     POSTGRES_PORT: str = Field(default="5432")
     ALGORITHM: str = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
 
     model_config = SettingsConfigDict(
         env_file=".env",
