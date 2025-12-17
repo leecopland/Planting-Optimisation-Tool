@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 
 
 # Nested model for the User/supervisor
@@ -8,8 +8,7 @@ class UserReadNested(BaseModel):
     id: int = Field(..., description="The unique ID of the farm supervisor.")
     email: str = Field(..., description="Email address of the farm supervisor.")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Nested model for Agroforestry Type
@@ -19,8 +18,7 @@ class AgroforestryTypeReadNested(BaseModel):
     id: int
     name: str = Field(..., description="Name of the agroforestry type.")
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Nested model for Soil Texture type
@@ -32,5 +30,4 @@ class SoilTextureReadNested(BaseModel):
         ..., description="Name of the soil texture type (e.g., 'Clay', 'Loam')."
     )
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

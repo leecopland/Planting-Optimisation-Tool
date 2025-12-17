@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ConfigDict
 from typing import List, Optional
 from decimal import Decimal
 
@@ -104,6 +104,7 @@ class FarmRead(FarmBase):
     # I think it is the fields being exposed to the end-user
     # Of which these existing values would be useless
     id: int = Field(..., description="The unique database ID of the farm.")
+    user_id: int = Field(..., description="User ID")
     farm_supervisor: UserReadNested = Field(
         ..., description="Details of the farm supervisor."
     )
@@ -115,8 +116,7 @@ class FarmRead(FarmBase):
         description="List of associated agroforestry types with names.",
     )
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # Updating a field of a farm doesn't require all other fields being passed too
