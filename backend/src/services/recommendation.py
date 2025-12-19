@@ -11,6 +11,7 @@ async def get_recommendations_for_farm(db: AsyncSession, farm_id: int):
     """
     Orchestrates the recommendation generation.
     TODO: Need to update recommend.build_payload_for_farm to be async and DB-aware.
+    TODO: Needs to be able to pass 1 or many farms.
     """
     # Verification that farm exists
     result = await db.execute(select(Farm).where(Farm.id == farm_id))

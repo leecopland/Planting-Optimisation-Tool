@@ -1,6 +1,7 @@
 # Farm table model and reference tables
 from typing import Optional
 from sqlalchemy import ForeignKey
+from sqlalchemy import Boolean, text
 from ..database import Base
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -32,11 +33,11 @@ class Farm(Base):
     area_ha: Mapped[float] = mapped_column()  # 3 decimal points
     latitude: Mapped[float] = mapped_column()  # 5 decimal points
     longitude: Mapped[float] = mapped_column()  # 5 decimal points
-    coastal: Mapped[bool] = mapped_column()
-    riparian: Mapped[bool] = mapped_column()
-    nitrogen_fixing: Mapped[bool] = mapped_column()
-    shade_tolerant: Mapped[bool] = mapped_column()
-    bank_stabilising: Mapped[bool] = mapped_column()
+    coastal: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    riparian: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    nitrogen_fixing: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    shade_tolerant: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    bank_stabilising: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
     slope: Mapped[float] = mapped_column()  # 2 decimal points
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE")
