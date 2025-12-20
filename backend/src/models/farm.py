@@ -33,11 +33,21 @@ class Farm(Base):
     area_ha: Mapped[float] = mapped_column()  # 3 decimal points
     latitude: Mapped[float] = mapped_column()  # 5 decimal points
     longitude: Mapped[float] = mapped_column()  # 5 decimal points
-    coastal: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
-    riparian: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
-    nitrogen_fixing: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
-    shade_tolerant: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
-    bank_stabilising: Mapped[bool] = mapped_column(Boolean, default=False, server_default=text("false"))
+    coastal: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false")
+    )
+    riparian: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false")
+    )
+    nitrogen_fixing: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false")
+    )
+    shade_tolerant: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false")
+    )
+    bank_stabilising: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default=text("false")
+    )
     slope: Mapped[float] = mapped_column()  # 2 decimal points
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE")
