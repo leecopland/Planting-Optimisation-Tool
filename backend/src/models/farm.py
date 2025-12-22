@@ -1,7 +1,7 @@
 # Farm table model and reference tables
 from typing import Optional
 from sqlalchemy import ForeignKey
-from sqlalchemy import Boolean, text
+from sqlalchemy import Boolean, text, Integer
 from ..database import Base
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -52,6 +52,7 @@ class Farm(Base):
     user_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE")
     )
+    external_id: Mapped[int | None] = mapped_column(Integer, unique=True, nullable=True)
 
     # Relationships
     # -------------

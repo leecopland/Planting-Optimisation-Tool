@@ -2,31 +2,46 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import select
 from src.schemas.farm import FarmCreate
-from src.models import Farm
-from src.models import User
+from src.models import Farm, User, AgroforestryType
 
 
 async def create_farm_record(db: AsyncSession, farm_data: FarmCreate, user_id: int):
-    """
-    Creates a new Farm record in the database.
-    """
-    # Prepare the data
+    # Convert Pydantic to Dict
     farm_data_dict = farm_data.model_dump()
 
-    # Add the Foreign Key
-    farm_data_dict["user_id"] = user_id
+    # Extract the Agroforestry IDs
+    # We remove them from the dict so SQLAlchemy doesn't crash
+    agroforestry_ids = farm_data_dict.pop("agroforestry_type_ids", [])
 
-    # Create the ORM object
-    db_farm = Farm(**farm_data_dict)
+    # Create the Base Farm Object
+    db_farm = Farm(**farm_data_dict, user_id=user_id)
 
-    # 4. Add to session and commit
+    # FETCH AND ATTACH (The logic for the end-user)
+    if agroforestry_ids:
+        # Find the actual 'AgroforestryType' objects in the DB
+        # that match the IDs the user sent
+        result = await db.execute(
+            select(AgroforestryType).where(AgroforestryType.id.in_(agroforestry_ids))
+        )
+        selected_types = list(result.scalars().all())
+
+        # Link them
+        db_farm.agroforestry_type = selected_types
+
+    # 5. Persist
     db.add(db_farm)
     await db.commit()
 
-    # Refresh the object (essential for getting the new ID and relationships)
-    await db.refresh(db_farm)
-
-    return db_farm
+    result = await db.execute(
+        select(Farm)
+        .options(
+            selectinload(Farm.farm_supervisor),
+            selectinload(Farm.soil_texture),
+            selectinload(Farm.agroforestry_type),
+        )
+        .where(Farm.id == db_farm.id)
+    )
+    return result.scalar_one()
 
 
 async def get_farm_by_id(

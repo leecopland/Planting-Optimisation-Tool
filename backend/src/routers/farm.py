@@ -15,7 +15,7 @@ router = APIRouter(prefix="/farms", tags=["Farms"])
 
 
 @router.post(
-    "/",
+    "",
     response_model=FarmRead,  # Response to the user
     status_code=201,
 )
