@@ -7,12 +7,15 @@ from suitability_scoring import (
     build_species_recommendations,
 )
 
+
 async def run_recommendation_pipeline(db: AsyncSession, farms, all_species, cfg):
     # Build the params Index
     # Using an empty df for default YAML logic
-    empty_params_df = pd.DataFrame(columns=["species_id", "feature", "score_method", "weight"])
+    empty_params_df = pd.DataFrame(
+        columns=["species_id", "feature", "score_method", "weight"]
+    )
     params_dict = build_species_params_dict(empty_params_df, cfg)
-    
+
     # Pre-calculate the optimized rules for all species
     optimised_rules = build_rules_dict(all_species, params_dict, cfg)
 
@@ -37,15 +40,12 @@ async def run_recommendation_pipeline(db: AsyncSession, farms, all_species, cfg)
             farm_data=farm_profile,
             species_list=all_species,
             optimised_rules=optimised_rules,
-            cfg=cfg
+            cfg=cfg,
         )
 
         # Format, rank and sort using the presentation logic
         formatted_recs = build_species_recommendations(result_list)
 
-        batch_results.append({
-            "farm_id": f.id,
-            "recommendations": formatted_recs
-        })
+        batch_results.append({"farm_id": f.id, "recommendations": formatted_recs})
 
     return batch_results
