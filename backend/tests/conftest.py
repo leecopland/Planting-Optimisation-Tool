@@ -1,8 +1,7 @@
-import sys
-import os
 import pytest
 import asyncio
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
+from src.database import get_db_session
 from sqlalchemy.ext.asyncio import AsyncConnection  # noqa: F401
 from httpx import AsyncClient, ASGITransport
 
@@ -13,14 +12,13 @@ from src.dependencies import create_access_token
 from src.models.user import User
 from src.models.soil_texture import SoilTexture
 from src.main import app
-
-# Manual path adjustment to ensure 'src' is importable when running from a subdirectory
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..")))
+from src.models.agroforestry_type import AgroforestryType
+from src.schemas.constants import SoilTextureID, AgroforestryTypeID
 
 settings = Settings()
 
 
-# --- Fixture 1: Event Loop ---
+# Event Loop
 @pytest.fixture(scope="session")
 def event_loop():
     """Create an instance of the default event loop for the session."""
@@ -29,7 +27,7 @@ def event_loop():
     loop.close()
 
 
-# --- Fixture 2: Database Engine (Session Scope) ---
+# Database Engine
 @pytest.fixture(scope="function")
 async def db_engine():
     """Provides a single, asynchronous database engine for the session."""
@@ -39,7 +37,7 @@ async def db_engine():
     await engine.dispose()
 
 
-# --- 3. Database Setup/Teardown Fixture (Function Scope, Autoused) ---
+# Database Setup/Teardown Fixture
 @pytest.fixture(scope="function", autouse=True)
 async def setup_database(db_engine):
     """
@@ -56,7 +54,7 @@ async def setup_database(db_engine):
         await conn.run_sync(Base.metadata.drop_all)
 
 
-# --- 4. Transactional Session Fixture (Function Scope - Guarantees Isolation) ---
+# Transactional Session Fixture
 @pytest.fixture(scope="function")
 async def async_session(db_engine):
     """
@@ -78,17 +76,28 @@ async def async_session(db_engine):
             await conn.rollback()
 
 
-# --- 5. Application Client Fixture (NEW) ---
 @pytest.fixture(scope="function")
-async def async_client():
-    """HTTP client connected to the FastAPI application."""
+async def async_client(async_session):
+    """HTTP client forced to use the test's transactional session."""
+
+    # We define a nested function that FastAPI will call.
+    # It simply returns the session object provided by the pytest fixture.
+    async def _get_test_db():
+        yield async_session
+
+    # Link the override to your project's dependency name
+    app.dependency_overrides[get_db_session] = _get_test_db
+
     async with AsyncClient(
         transport=ASGITransport(app=app), base_url="http://test"
     ) as client:
         yield client
 
+    # Clean up after the test so production code isn't affected
+    app.dependency_overrides.clear()
 
-# --- 6. User Fixtures (NEW) ---
+
+# User Fixtures
 @pytest.fixture(scope="function")
 async def test_user_a(async_session: AsyncSession) -> User:
     """Fixture for creating User A (Owner) and persisting them."""
@@ -116,7 +125,6 @@ async def test_user_b(async_session: AsyncSession) -> User:
 @pytest.fixture(scope="function")
 async def setup_soil_texture(async_session: AsyncSession):
     """Ensures a SoilTexture record exists with a known ID for Farm FK constraints."""
-    # This fixture correctly commits the data, so no change needed here.
     texture = SoilTexture(id=1, name="Test Loam")
     async_session.add(texture)
     await async_session.commit()
@@ -124,7 +132,7 @@ async def setup_soil_texture(async_session: AsyncSession):
     return texture
 
 
-# --- 7. Authorization Header Fixtures (NEW) ---
+# Authorization Header Fixtures
 @pytest.fixture(scope="function")
 def auth_user_headers(test_user_a: User) -> dict:
     """Provides Authorization headers (JWT) for User A."""
@@ -141,3 +149,22 @@ def auth_user_b_headers(test_user_b: User) -> dict:
         data={"sub": str(test_user_b.id)}
     )  # Use ID as sub
     return {"Authorization": f"Bearer {access_token}"}
+
+
+@pytest.fixture(scope="function")
+async def seed_constants(async_session: AsyncSession):
+    """
+    Seeds the reference tables required for Pydantic FK validation
+    and model relationships.
+    """
+    # Seed Soil Textures from Enum
+    for entry in SoilTextureID:
+        async_session.add(SoilTexture(id=entry.value, name=entry.name.lower()))
+
+    # Seed Agroforestry Types from Enum
+    for entry in AgroforestryTypeID:
+        async_session.add(
+            AgroforestryType(id=entry.value, type_name=entry.name.lower())
+        )
+
+    await async_session.commit()

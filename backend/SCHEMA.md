@@ -38,6 +38,7 @@
 | `bank_stabilising` | `Boolean` | No | No |  |
 | `slope` | `Float` | No | No |  |
 | `user_id` | `Integer` | Yes | No | id |
+| `external_id` | `Integer` | Yes | No |  |
 ## TABLE: `species`
 
 | Column Name | SQL Type | Nullable | Primary Key | Foreign Key |
@@ -70,6 +71,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | `id` | `Integer` | No | Yes | id |
 | `boundary` | `Geometry` | No | No |  |
+| `external_id` | `Integer` | Yes | No |  |
 ## TABLE: `agroforestry_types`
 
 | Column Name | SQL Type | Nullable | Primary Key | Foreign Key |

@@ -13,7 +13,7 @@ router = APIRouter(
 
 
 @router.get(
-    "/",
+    "",
     response_model=List[SoilTextureRead],
     summary="Retrieve all available soil texture types.",
 )

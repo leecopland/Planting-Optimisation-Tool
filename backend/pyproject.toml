@@ -21,6 +21,7 @@ dependencies = [
     "sqlalchemy-utils>=0.42.1",
     "datascience",
     "pyjwt>=2.10.1",
+    "psycopg>=3.3.2",
 ]
 
 [tool.pytest.ini_options]

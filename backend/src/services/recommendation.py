@@ -1,34 +1,51 @@
-import asyncio  # noqa: F401
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from fastapi import HTTPException, status
+import pandas as pd
+from suitability_scoring import (
+    calculate_suitability,
+    build_species_params_dict,
+    build_rules_dict,
+    build_species_recommendations,
+)
 
-from src.models.farm import Farm
-from suitability_scoring.recommend import build_payload_for_farm  # noqa: F401
 
+async def run_recommendation_pipeline(db: AsyncSession, farms, all_species, cfg):
+    # Build the params Index
+    # Using an empty df for default YAML logic
+    empty_params_df = pd.DataFrame(
+        columns=["species_id", "feature", "score_method", "weight"]
+    )
+    params_dict = build_species_params_dict(empty_params_df, cfg)
 
-async def get_recommendations_for_farm(db: AsyncSession, farm_id: int):
-    """
-    Orchestrates the recommendation generation.
-    TODO: Need to update recommend.build_payload_for_farm to be async and DB-aware.
-    """
-    # Verification that farm exists
-    result = await db.execute(select(Farm).where(Farm.id == farm_id))
-    farm = result.scalar_one_or_none()
+    # Pre-calculate the optimized rules for all species
+    optimised_rules = build_rules_dict(all_species, params_dict, cfg)
 
-    if not farm:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Farm with ID {farm_id} not found.",
+    batch_results = []
+
+    # Iterate through each farm and score
+    for f in farms:
+        # Prepare the single farm dictionary as the engine expects it
+        farm_profile = {
+            "id": f.id,
+            "rainfall_mm": f.rainfall_mm,
+            "ph": float(f.ph),
+            "temperature_celsius": f.temperature_celsius,
+            "elevation_m": f.elevation_m,
+            "soil_texture": f.soil_texture.name.lower() if f.soil_texture else None,
+            # If other features are added to the YAML file they need to be included here.
+        }
+
+        # Run the engine for the farm
+        # result_list is the list of dicts with explanations, scores_list is for debugging
+        result_list, scores_list = calculate_suitability(
+            farm_data=farm_profile,
+            species_list=all_species,
+            optimised_rules=optimised_rules,
+            cfg=cfg,
         )
 
-    # Logic
-    try:
-        return
-        # Once TODO is done, uncomment below.
+        # Format, rank and sort using the presentation logic
+        formatted_recs = build_species_recommendations(result_list)
 
-        # return await build_payload_for_farm(db, farm_id)
-        # recommendations = await asyncio.to_thread(build_payload_for_farm, db, farm_id)
-        # return recommendations
-    except TypeError:
-        raise Exception
+        batch_results.append({"farm_id": f.id, "recommendations": formatted_recs})
+    print(f"DEBUG: First recommendation for farm {f.id}: {formatted_recs[0]}")
+    return batch_results
