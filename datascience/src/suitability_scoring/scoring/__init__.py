@@ -1,9 +1,11 @@
-from suitability_scoring.scoring.scoring import (
-    score_farms_species_by_id_list,
-    mcda_scorer,
+from .scoring import (
+    numerical_range_score,
+    categorical_exact_score,
+    calculate_suitability,
 )
 
 __all__ = [
-    "score_farms_species_by_id_list",
-    "mcda_scorer",
+    "numerical_range_score",
+    "categorical_exact_score",
+    "calculate_suitability",
 ]

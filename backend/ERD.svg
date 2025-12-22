@@ -156,7 +156,7 @@
 <text text-anchor="middle" x="780.25" y="-220.21" font-family="Bitstream-Vera Sans" font-size="7.00">+ species_id</text>
 </g>
 <!-- species&#45;&gt;species_soil_texture_association -->
-<g id="edge6" class="edge">
+<g id="edge5" class="edge">
 <title>species&#45;&gt;species_soil_texture_association</title>
 <path fill="none" stroke="black" d="M746.83,-282C746.83,-282 522.25,-282 522.25,-282 522.25,-282 522.25,-112.5 522.25,-48.27"/>
 <polygon fill="none" stroke="black" points="746.83,-285.5 756.83,-282 746.83,-278.5 746.83,-285.5"/>
@@ -164,7 +164,7 @@
 <text text-anchor="middle" x="733.83" y="-284.4" font-family="Bitstream-Vera Sans" font-size="7.00">+ species_id</text>
 </g>
 <!-- soil_textures&#45;&gt;species_soil_texture_association -->
-<g id="edge5" class="edge">
+<g id="edge6" class="edge">
 <title>soil_textures&#45;&gt;species_soil_texture_association</title>
 <path fill="none" stroke="black" d="M63,-99.86C63,-99.86 63,-24 63,-24 63,-24 288,-24 406.66,-24"/>
 <polygon fill="none" stroke="black" points="59.5,-99.86 63,-109.86 66.5,-99.86 59.5,-99.86"/>
