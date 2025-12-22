@@ -14,7 +14,6 @@ async def test_farm_and_boundary_link(
     farm_payload = {
         "external_id": 999,
         "name": "Spatial Farm",
-        "owner_id": 1,
         "soil_texture_id": 1,
         "area_ha": 10.5,
         "rainfall_mm": 1500,

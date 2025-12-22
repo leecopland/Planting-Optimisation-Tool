@@ -33,5 +33,4 @@ async def get_farm_recs(
     # Run the pipeline
     # We pass [farm] as a list to support the batch logic in the service
     results = await run_recommendation_pipeline(db, [farm], all_species, cfg)
-
     return results[0]
