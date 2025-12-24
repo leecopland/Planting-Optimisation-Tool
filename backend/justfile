@@ -82,9 +82,9 @@ schema: ensure-env
 
 erd: ensure-env
     @echo "--- Generating ERD.md ---"
-    @{{PYTHON}} -c "print('# Entity Relationship Diagram\n\n\`\`\`mermaid')" > ERD.md
+    @{{PYTHON}} -c "print('# Entity Relationship Diagram\n\n' + chr(96)*3 + 'mermaid')" > ERD.md
     @{{UV_RUNNER}} paracelsus graph src.database:Base --import-module "src.models:*" >> ERD.md
-    @{{PYTHON}} -c "print('\`\`\`')" >> ERD.md
+    @{{PYTHON}} -c "print(chr(96)*3)" >> ERD.md
     @echo "--- ERD.md created successfully. ---"
 
 run-api: ensure-env
