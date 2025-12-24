@@ -1,30 +1,36 @@
+# Set the shell only for Windows
 set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+
 export PYTHONUTF8 := "1"
 export PYTHONPATH := "."
 
-SERVICE_NAME      := "db"
-CONTAINER_NAME    := "pot_postgres_db"
-ALEMBIC_CMD       := "uv run alembic"
-PYTEST_RUNNER     := "uv run"
-PYTEST_CMD        := PYTEST_RUNNER + " pytest"
-UV_RUNNER         := "uv run"
-FASTAPI_TARGET    := "src/main.py"
-FASTAPI_CMD       := "fastapi dev " + FASTAPI_TARGET + " --port 8080 --host 0.0.0.0"
+# Variable definitions using direct OS detection
+PYTHON          := if os() == "windows" { "python" } else { "python3" }
+UV_RUNNER       := "uv run"
+ALEMBIC_CMD     := UV_RUNNER + " alembic"
+
+# OS-Specific Background Command Logic
+RUN_BG_API      := if os() == "windows" {
+    "Start-Process uv -ArgumentList 'run', 'fastapi', 'run', 'src/main.py', '--port', '8080' -WindowStyle Hidden; Write-Host 'API starting, waiting 5s for warm-up'; Start-Sleep -s 5"
+} else {
+    "uv run fastapi run src/main.py --port 8080 & sleep 5"
+}
+
+SERVICE_NAME    := "db"
+CONTAINER_NAME  := "pot_postgres_db"
+PYTEST_CMD      := UV_RUNNER + " pytest"
+
+FASTAPI_TARGET  := "src/main.py"
+FASTAPI_CMD     := "fastapi dev " + FASTAPI_TARGET + " --port 8080 --host 0.0.0.0"
 
 default: help
 
+# Standard recipe to avoid Shebang/CRLF issues
 [private]
 ensure-env:
-    #!python
-    import os
-    import shutil
-    if not os.path.exists('.env'):
-        if os.path.exists('.env.example'):
-            shutil.copy('.env.example', '.env')
-            print('--- Created .env from .env.example ---')
-        else:
-            print('ERROR: .env.example not found!')
-            exit(1)
+    @{{PYTHON}} -c "import os, shutil; \
+    not os.path.exists('.env') and os.path.exists('.env.example') and \
+    (shutil.copy('.env.example', '.env'), print('--- Created .env from .env.example ---'))"
 
 help:
     @just --list
@@ -41,7 +47,7 @@ db-start:
     @echo "--- Starting PostgreSQL Container ---"
     @docker compose up -d {{SERVICE_NAME}}
     @echo "Waiting for DB to be ready..."
-    @python -c "import time; time.sleep(5)"
+    @{{PYTHON}} -c "import time; time.sleep(5)"
 
 db-migrate: ensure-env
     @echo "--- Applying Schema Migration ---"
@@ -71,13 +77,14 @@ psql: ensure-env
 
 schema: ensure-env
     @echo "--- Generating SCHEMA.md from Models ---"
-    @{{UV_RUNNER}} python -m src.generate_schema > SCHEMA.md
+    @{{UV_RUNNER}} {{PYTHON}} -m src.generate_schema > SCHEMA.md
+    @echo "--- SCHEMA.md generated ---"
 
 erd: ensure-env
     @echo "--- Generating ERD.md ---"
-    @python -c "print('# Entity Relationship Diagram\n\n```mermaid')" > ERD.md
+    @{{PYTHON}} -c "print('# Entity Relationship Diagram\n\n\`\`\`mermaid')" > ERD.md
     @{{UV_RUNNER}} paracelsus graph src.database:Base --import-module "src.models:*" >> ERD.md
-    @python -c "print('```')" >> ERD.md
+    @{{PYTHON}} -c "print('\`\`\`')" >> ERD.md
     @echo "--- ERD.md created successfully. ---"
 
 run-api: ensure-env
@@ -87,17 +94,15 @@ populate: ensure-env
     @echo "Preparing data ingestion environment..."
     @just db-reset
     @just db-migrate
-    @{{UV_RUNNER}} python -m src.scripts.seed_references
-    @{{UV_RUNNER}} python -m src.scripts.create_test_user
-    @{{UV_RUNNER}} python -m src.scripts.setup_import_db
+    @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.seed_references
+    @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.create_test_user
+    @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.setup_import_db
     @just kill-api
-    @echo "Database is ready and populated. To start dev server run:"
-    @echo "just run-api"
-    
+    @echo "Database is ready and populated. To start dev server run: just run-api"
 
 kill-api:
     @echo "Attempting to stop API server..."
-    @{{UV_RUNNER}} python -m src.scripts.kill-api
+    @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.kill-api
 
 audit:
     @echo "--- STARTING CROSS-PLATFORM AUDIT ---"
@@ -105,14 +110,14 @@ audit:
     @-just ensure-env
     @echo "2. Checking Database Migration (Alembic)..."
     @-{{ALEMBIC_CMD}} current
-    @echo "3. Checking ER-Diagram Generation (Postgres/Psycopg)..."
+    @echo "3. Checking ER-Diagram Generation..."
     @-just erd
     @echo "4. Checking Schema Documentation..."
     @-just schema
     @echo "5. Checking Test Suite (Pytest)..."
     @-just test
     @echo "6. Checking API Entry Point..."
-    @powershell.exe -Command "Start-Process uv -ArgumentList 'run', 'fastapi', 'run', 'src/main.py', '--port', '8080' -WindowStyle Hidden; Write-Host 'API starting, waiting 5s for warm-up'; Start-Sleep -s 5"
+    @{{RUN_BG_API}}
     @echo "7. Checking Kill Script..."
     @-just kill-api
     @echo "--- AUDIT COMPLETE ---"
