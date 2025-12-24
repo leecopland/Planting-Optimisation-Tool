@@ -10,10 +10,12 @@ GREEN = "\033[0;32m"
 RED = "\033[0;31m"
 NC = "\033[0m"
 
+
 def run_module(module_name):
     """Runs a python module using uv."""
     print(f"{GREEN} Running {module_name}...{NC}")
     subprocess.run(["uv", "run", "python", "-m", module_name], check=True)
+
 
 def wait_for_api(url="127.0.0.1", port=8080, timeout=15):
     """Checks if API is up without using external tools."""
@@ -32,11 +34,12 @@ def wait_for_api(url="127.0.0.1", port=8080, timeout=15):
         print(".", end="", flush=True)
     return False
 
+
 def main():
     print(f"{BLUE}===================================================={NC}")
     print(f"{BLUE} Starting Database Initialization{NC}")
-    print(f"{BLUE}===================================================={NC}")    
-    
+    print(f"{BLUE}===================================================={NC}")
+
     env = os.environ.copy()
     env["PYTHONUTF8"] = "1"
     env["NO_COLOR"] = "1"
@@ -44,11 +47,21 @@ def main():
 
     with open("api_log.txt", "w", encoding="utf-8") as log_file:
         api_proc = subprocess.Popen(
-            ["uv", "run", "dotenv", "run", "fastapi", "dev", "src/main.py", "--port", "8080"],
+            [
+                "uv",
+                "run",
+                "dotenv",
+                "run",
+                "fastapi",
+                "dev",
+                "src/main.py",
+                "--port",
+                "8080",
+            ],
             stdout=log_file,
             stderr=log_file,
             text=True,
-            env=env
+            env=env,
         )
 
     try:
@@ -65,13 +78,16 @@ def main():
         print(f"{RED}Ingestion failed during: {e}{NC}")
         sys.exit(1)
     finally:
-        print(f"\n{BLUE}Shutting down background API handle (PID: {api_proc.pid})...{NC}")
+        print(
+            f"\n{BLUE}Shutting down background API handle (PID: {api_proc.pid})...{NC}"
+        )
         api_proc.terminate()
         api_proc.wait()
 
     print(f"{BLUE}===================================================={NC}")
     print(f"{GREEN} SUCCESS: Database is fully populated{NC}")
     print(f"{BLUE}===================================================={NC}")
+
 
 if __name__ == "__main__":
     main()
