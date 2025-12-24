@@ -98,6 +98,8 @@ populate: ensure-env
     @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.create_test_user
     @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.setup_import_db
     @just kill-api
+    @echo "--- Ingestion Complete, Verifying Stats ---"
+    @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.check_data_stats
     @echo "Database is ready and populated. To start dev server run: just run-api"
 
 kill-api:
