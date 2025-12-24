@@ -2,6 +2,7 @@ import asyncio
 from sqlalchemy import text
 from src.database import AsyncSessionLocal
 
+
 async def check_stats():
     async with AsyncSessionLocal() as session:
         # High-Level Totals
@@ -10,7 +11,7 @@ async def check_stats():
             "Total Farms": "SELECT count(*) FROM farms",
             "Total Species": "SELECT count(*) FROM species",
         }
-        
+
         print("\n" + "═" * 65)
         print("                DATABASE INGESTION REPORT")
         print("═" * 65)
@@ -41,7 +42,7 @@ async def check_stats():
         print("\n" + "─" * 65)
         print(f"{'Soil Texture Name':32} | {'Farms with this Texture'}")
         print("─" * 65)
-        
+
         texture_query = """
             SELECT st.name, COUNT(f.id) 
             FROM soil_textures st
@@ -60,7 +61,7 @@ async def check_stats():
         print("\n" + "─" * 65)
         print(f"{'Agroforestry Type':32} | {'Farms with this Type'}")
         print("─" * 65)
-        
+
         agro_query = """
             SELECT aft.type_name, COUNT(assoc.farm_id) 
             FROM agroforestry_types aft
@@ -92,8 +93,9 @@ async def check_stats():
                 print(f" {label:32} | {res.scalar()}")
             except Exception:
                 print(f" {label:32} | [Error]")
-            
+
         print("═" * 65 + "\n")
+
 
 if __name__ == "__main__":
     asyncio.run(check_stats())
