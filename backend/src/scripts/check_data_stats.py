@@ -33,8 +33,12 @@ async def check_stats():
         try:
             res = await session.execute(text(boundary_query))
             row = res.fetchone()
-            print(f" {'Farms with GIS Boundaries':32}: {row[0]}")
-            print(f" {'Farms missing GIS Boundaries':32}: {row[1]}")
+            if row:
+                print(f" {'Farms with GIS Boundaries':32}: {row[0]}")
+                print(f" {'Farms missing GIS Boundaries':32}: {row[1]}")
+            else:
+                print(f" {'Farms with GIS Boundaries':32}: [No Data]")
+                print(f" {'Farms missing GIS Boundaries':32}: [No Data]")
         except Exception as e:
             print(f" Boundary Stats Error: {e}")
 

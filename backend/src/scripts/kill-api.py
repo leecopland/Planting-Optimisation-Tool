@@ -7,7 +7,6 @@ def kill_process_on_port(port):
     found = False
     for proc in psutil.process_iter(["pid", "name"]):
         try:
-            # use net_connections() as it is more reliable on newer psutil/Windows
             connections = proc.net_connections(kind="inet")
             for conn in connections:
                 if conn.laddr.port == port:
