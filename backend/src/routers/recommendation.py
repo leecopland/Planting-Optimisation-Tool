@@ -26,7 +26,7 @@ async def get_farm_recs(
     # Fetch the farm and verify ownership
     # Pass current_user (which is a UserRead schema) to the service
     farm = await get_farm_by_id(db, farm_id, current_user.id)
-    
+
     if not farm:
         raise HTTPException(status_code=404, detail="Farm not found or access denied")
 
@@ -36,5 +36,5 @@ async def get_farm_recs(
 
     # Run the pipeline
     results = await run_recommendation_pipeline(db, [farm], all_species, cfg)
-    
+
     return results[0]
