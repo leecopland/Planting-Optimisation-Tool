@@ -7,7 +7,7 @@ from src.dependencies import CurrentActiveUser
 from src.services.farm import get_farm_by_id
 from src.services.species import get_all_species_for_engine, get_recommend_config
 from src.services.recommendation import run_recommendation_pipeline
-from src.models.user import User
+from src.schemas.user import UserRead
 
 router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 
@@ -15,14 +15,18 @@ router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 @router.get("/{farm_id}")
 async def get_farm_recs(
     farm_id: int,
+    # 1. Inject the authenticated user (Matches your confirmed syntax)
+    current_user: UserRead = CurrentActiveUser,
+    # 2. Inject the database session
     db: AsyncSession = Depends(get_db_session),
-    current_user: User = CurrentActiveUser,
 ):
     """
     Endpoint to get species recommendations for a specific farm.
     """
     # Fetch the farm and verify ownership
-    farm = await get_farm_by_id(db, farm_id, current_user)
+    # Pass current_user (which is a UserRead schema) to the service
+    farm = await get_farm_by_id(db, farm_id, current_user.id)
+
     if not farm:
         raise HTTPException(status_code=404, detail="Farm not found or access denied")
 
@@ -31,6 +35,6 @@ async def get_farm_recs(
     cfg = get_recommend_config()
 
     # Run the pipeline
-    # We pass [farm] as a list to support the batch logic in the service
     results = await run_recommendation_pipeline(db, [farm], all_species, cfg)
+
     return results[0]

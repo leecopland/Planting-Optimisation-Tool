@@ -1,6 +1,6 @@
 from typing import Union
 from fastapi import FastAPI
-from src.routers import farm, soil_texture, recommendation, species, user
+from src.routers import farm, soil_texture, recommendation, species, user, auth
 from pydantic import BaseModel
 from src.database import get_db_session
 
@@ -9,6 +9,7 @@ app = FastAPI(
     version="1.0.0",
 )
 
+app.include_router(auth.router)
 app.include_router(farm.router)
 app.include_router(soil_texture.router)
 app.include_router(recommendation.router)

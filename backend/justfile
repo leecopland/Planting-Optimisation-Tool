@@ -1,0 +1,125 @@
+# Set the shell only for Windows
+set windows-shell := ["powershell.exe", "-NoLogo", "-Command"]
+
+export PYTHONUTF8 := "1"
+export PYTHONPATH := "."
+
+# Variable definitions using direct OS detection
+PYTHON          := if os() == "windows" { "python" } else { "python3" }
+UV_RUNNER       := "uv run"
+ALEMBIC_CMD     := UV_RUNNER + " alembic"
+
+# OS-Specific Background Command Logic
+RUN_BG_API      := if os() == "windows" {
+    "Start-Process uv -ArgumentList 'run', 'fastapi', 'run', 'src/main.py', '--port', '8080' -WindowStyle Hidden; Write-Host 'API starting, waiting 5s for warm-up'; Start-Sleep -s 5"
+} else {
+    "uv run fastapi run src/main.py --port 8080 & sleep 5"
+}
+
+SERVICE_NAME    := "db"
+CONTAINER_NAME  := "pot_postgres_db"
+PYTEST_CMD      := UV_RUNNER + " pytest"
+
+FASTAPI_TARGET  := "src/main.py"
+FASTAPI_CMD     := "fastapi dev " + FASTAPI_TARGET + " --port 8080 --host 0.0.0.0"
+
+default: help
+
+# Standard recipe to avoid Shebang/CRLF issues
+[private]
+ensure-env:
+    @{{PYTHON}} -c "import os, shutil; \
+    not os.path.exists('.env') and os.path.exists('.env.example') and \
+    (shutil.copy('.env.example', '.env'), print('--- Created .env from .env.example ---'))"
+
+help:
+    @just --list
+
+setup: ensure-env db-teardown db-start db-migrate
+    @echo "--- Setup/Update Complete ---"
+
+db-teardown:
+    @echo "--- Stopping PostgreSQL Container (Preserving Data) ---"
+    @docker compose down
+    @echo "--- PostgreSQL Container Stopped ---"
+
+db-start:
+    @echo "--- Starting PostgreSQL Container ---"
+    @docker compose up -d {{SERVICE_NAME}}
+    @echo "Waiting for DB to be ready..."
+    @{{PYTHON}} -c "import time; time.sleep(5)"
+
+db-migrate: ensure-env
+    @echo "--- Applying Schema Migration ---"
+    @{{ALEMBIC_CMD}} upgrade head
+    @echo "--- Schema Migrated ---"
+
+db-reset:
+    @echo "--- WARNING: Wiping Database and Volumes ---"
+    @docker compose down -v
+    @just db-start
+
+revision message: ensure-env
+    @echo "--- Generating New Migration Script ---"
+    @{{ALEMBIC_CMD}} revision --autogenerate -m "{{message}}"
+    @echo "--- Migration Script generated---"
+
+rename-column: ensure-env
+    @echo "--- STARTING MANUAL RENAME PROCEDURE ---"
+    @{{ALEMBIC_CMD}} revision -m "MANUAL_RENAME_REQUIRED"
+
+test: ensure-env
+    @echo "--- Running Pytest ---"
+    @{{PYTEST_CMD}} tests/
+
+psql: ensure-env
+    @docker exec -it {{CONTAINER_NAME}} psql -U postgres -d POT_db
+
+schema: ensure-env
+    @echo "--- Generating SCHEMA.md from Models ---"
+    @{{UV_RUNNER}} {{PYTHON}} -m src.generate_schema > SCHEMA.md
+    @echo "--- SCHEMA.md generated ---"
+
+erd: ensure-env
+    @echo "--- Generating ERD.md ---"
+    @{{PYTHON}} -c "print('# Entity Relationship Diagram\n\n' + chr(96)*3 + 'mermaid')" > ERD.md
+    @{{UV_RUNNER}} paracelsus graph src.database:Base --import-module "src.models:*" >> ERD.md
+    @{{PYTHON}} -c "print(chr(96)*3)" >> ERD.md
+    @echo "--- ERD.md created successfully. ---"
+
+run-api: ensure-env
+    -@{{UV_RUNNER}} {{FASTAPI_CMD}}
+
+populate: ensure-env
+    @echo "Preparing data ingestion environment..."
+    @just db-reset
+    @just db-migrate
+    @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.seed_references
+    @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.create_test_user
+    @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.setup_import_db
+    @just kill-api
+    @echo "--- Ingestion Complete, Verifying Stats ---"
+    @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.check_data_stats
+    @echo "Database is ready and populated. To start dev server run: just run-api"
+
+kill-api:
+    @echo "Attempting to stop API server..."
+    @{{UV_RUNNER}} {{PYTHON}} -m src.scripts.kill-api
+
+audit:
+    @echo "--- STARTING CROSS-PLATFORM AUDIT ---"
+    @echo "1. Checking Environment..."
+    @-just ensure-env
+    @echo "2. Checking Database Migration (Alembic)..."
+    @-{{ALEMBIC_CMD}} current
+    @echo "3. Checking ER-Diagram Generation..."
+    @-just erd
+    @echo "4. Checking Schema Documentation..."
+    @-just schema
+    @echo "5. Checking Test Suite (Pytest)..."
+    @-just test
+    @echo "6. Checking API Entry Point..."
+    @{{RUN_BG_API}}
+    @echo "7. Checking Kill Script..."
+    @-just kill-api
+    @echo "--- AUDIT COMPLETE ---"

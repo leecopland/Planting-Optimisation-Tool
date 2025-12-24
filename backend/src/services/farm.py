@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import select
 from src.schemas.farm import FarmCreate
-from src.models import Farm, User, AgroforestryType
+from src.models import Farm, AgroforestryType
 
 
 async def create_farm_record(db: AsyncSession, farm_data: FarmCreate, user_id: int):
@@ -44,9 +44,7 @@ async def create_farm_record(db: AsyncSession, farm_data: FarmCreate, user_id: i
     return result.scalar_one()
 
 
-async def get_farm_by_id(
-    db: AsyncSession, farm_id: int, current_user: User
-) -> Farm | None:
+async def get_farm_by_id(db: AsyncSession, farm_id: int, user_id: int) -> Farm | None:
     """
     Retrieves a single Farm record, filtered by farm_id AND user_id
     to enforce ownership authorization.
@@ -54,14 +52,12 @@ async def get_farm_by_id(
     Includes selectinload for relationships to prevent MissingGreenlet errors
     during Pydantic serialization.
     """
-    user_id_int = current_user.id
-
     # We add .options(selectinload(...)) for every relationship
     # that the FarmRead schema needs to display.
     stmt = (
         select(Farm)
         .options(selectinload(Farm.soil_texture), selectinload(Farm.agroforestry_type))
-        .where((Farm.id == farm_id) & (Farm.user_id == user_id_int))
+        .where((Farm.id == farm_id) & (Farm.user_id == user_id))
     )
 
     result = await db.execute(stmt)
