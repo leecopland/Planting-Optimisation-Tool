@@ -15,9 +15,7 @@ router = APIRouter(prefix="/recommendations", tags=["recommendations"])
 @router.get("/{farm_id}")
 async def get_farm_recs(
     farm_id: int,
-    # 1. Inject the authenticated user (Matches your confirmed syntax)
     current_user: UserRead = CurrentActiveUser,
-    # 2. Inject the database session
     db: AsyncSession = Depends(get_db_session),
 ):
     """
