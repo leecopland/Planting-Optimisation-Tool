@@ -1,8 +1,5 @@
-from typing import Union
 from fastapi import FastAPI
-from src.routers import farm, soil_texture, recommendation, species, user, auth
-from pydantic import BaseModel
-from src.database import get_db_session
+from src.routers import farm, soil_texture, recommendation, species, auth
 
 app = FastAPI(
     title="Planting Optimisation Tool API",
@@ -16,6 +13,7 @@ app.include_router(recommendation.router)
 app.include_router(species.router)
 # Not created yet
 # app.include_router(user.router)
+
 
 # Just a test for now, using tutorial from FastAPI docs
 @app.get("/")
