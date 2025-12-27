@@ -36,5 +36,4 @@ async def run_recommendation_pipeline(db: AsyncSession, farms, all_species, cfg)
 
         formatted_recs = build_species_recommendations(result_list)
         batch_results.append({"farm_id": f.id, "recommendations": formatted_recs})
-
     return batch_results
