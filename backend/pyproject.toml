@@ -1,7 +1,7 @@
 [project]
 name = "backend"
 version = "0.1.0"
-description = "Add your description here"
+description = "Planting Optimisation Tool Backend Infrastructure"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -39,6 +39,8 @@ testpaths = [
     "tests"
 ]
 asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+asyncio_default_test_loop_scope = "session"
 
 [tool.ruff]
 # Ignore unused imports (F401) in all SQLAlchemy model files.

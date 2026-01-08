@@ -37,6 +37,15 @@ erDiagram
     INTEGER temperature_celsius
   }
 
+  parameters {
+    INTEGER id PK
+    INTEGER species_id FK
+    VARCHAR feature
+    FLOAT trap_left_tol
+    FLOAT trap_right_tol
+    FLOAT weight
+  }
+
   species {
     INTEGER id PK
     BOOLEAN bank_stabilising
@@ -79,6 +88,16 @@ erDiagram
     VARCHAR(255) name UK "indexed"
   }
 
+  recommendations {
+    INTEGER id PK
+    INTEGER farm_id FK
+    INTEGER species_id FK
+    DATETIME created_at
+    ARRAY key_reasons
+    INTEGER rank_overall
+    FLOAT score_mcda
+  }
+
   farms ||--o| farm_agroforestry_association : farm_id
   agroforestry_types ||--o| farm_agroforestry_association : agroforestry_type_id
   species ||--o| species_agroforestry_association : species_id
@@ -87,5 +106,8 @@ erDiagram
   soil_textures ||--o| species_soil_texture_association : soil_texture_id
   soil_textures ||--o{ farms : soil_texture_id
   users ||--o{ farms : user_id
+  species ||--o{ parameters : species_id
   farms ||--o| boundary : id
+  farms ||--o{ recommendations : farm_id
+  species ||--o{ recommendations : species_id
 ```

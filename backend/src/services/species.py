@@ -5,6 +5,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import selectinload
 from suitability_scoring.utils.config import load_yaml
 from src.models.species import Species
+from src.domains.suitability_scoring import SuitabilitySpecies
 
 
 def get_recommend_config():
@@ -22,7 +23,7 @@ def get_recommend_config():
     return load_yaml(str(config_path))
 
 
-async def get_all_species_for_engine(db: AsyncSession):
+async def get_all_species_for_engine(db: AsyncSession) -> list[SuitabilitySpecies]:
     stmt = select(Species).options(selectinload(Species.soil_textures))
     result = await db.execute(stmt)
-    return [sp.to_dict() for sp in result.scalars().all()]
+    return [SuitabilitySpecies.from_db_model(sp) for sp in result.scalars().all()]

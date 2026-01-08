@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 import pandas as pd
+from src.domains.suitability_scoring import SuitabilityFarm
 from suitability_scoring import (
     calculate_suitability,
     build_species_params_dict,
@@ -9,43 +10,31 @@ from suitability_scoring import (
 
 
 async def run_recommendation_pipeline(db: AsyncSession, farms, all_species, cfg):
-    # Build the params Index
-    # Using an empty df for default YAML logic
+    # TODO: still need to convert Species objects to dicts for the DS engine until it accepts objects.
+    species_dicts = [s.model_dump() for s in all_species]
+
+    # Pre-calculate rules
     empty_params_df = pd.DataFrame(
         columns=["species_id", "feature", "score_method", "weight"]
     )
     params_dict = build_species_params_dict(empty_params_df, cfg)
-
-    # Pre-calculate the optimized rules for all species
-    optimised_rules = build_rules_dict(all_species, params_dict, cfg)
+    optimised_rules = build_rules_dict(species_dicts, params_dict, cfg)
 
     batch_results = []
 
-    # Iterate through each farm and score
     for f in farms:
-        # Prepare the single farm dictionary as the engine expects it
-        farm_profile = {
-            "id": f.id,
-            "rainfall_mm": f.rainfall_mm,
-            "ph": float(f.ph),
-            "temperature_celsius": f.temperature_celsius,
-            "elevation_m": f.elevation_m,
-            "soil_texture": f.soil_texture.name.lower() if f.soil_texture else None,
-            # If other features are added to the YAML file they need to be included here.
-        }
+        # Using the domain model
+        farm_profile = SuitabilityFarm.from_db_model(f)
 
-        # Run the engine for the farm
-        # result_list is the list of dicts with explanations, scores_list is for debugging
-        result_list, scores_list = calculate_suitability(
-            farm_data=farm_profile,
-            species_list=all_species,
+        # Run the engine
+        result_list, _ = calculate_suitability(
+            farm_data=farm_profile.model_dump(),
+            species_list=species_dicts,
             optimised_rules=optimised_rules,
             cfg=cfg,
         )
 
-        # Format, rank and sort using the presentation logic
         formatted_recs = build_species_recommendations(result_list)
-
         batch_results.append({"farm_id": f.id, "recommendations": formatted_recs})
-    print(f"First recommendation for farm {f.id}: {formatted_recs[0]}")
+
     return batch_results
