@@ -107,6 +107,12 @@ jobs:
     - name: Apply Alembic Migrations
       run: |
         uv run alembic upgrade head
+
+    # 5. Seed reference data
+    - name: Seed Reference Data
+      run: |
+        PSQL_URI="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB}"
+        psql $PSQL_URI -c "INSERT INTO soil_textures (id, name) VALUES (1, 'Sandy'), (2, 'Loamy'), (4, 'Clay') ON CONFLICT DO NOTHING;"
     
     # 5. REPLICATE DATABASE FOR TESTS
     - name: Create pot_test_db from Template
