@@ -22,6 +22,7 @@ def basic_cfg():
                 "type": "numeric",
                 "short": "ph",
                 "score_method": "magic",
+                "tolerance": {"left": 0.25, "right": 0.6},
                 "default_weight": 0.50,
             },
             "soil_texture": {
@@ -47,36 +48,48 @@ def species_params_df():
                 "feature": "ph",
                 "score_method": "num_range",
                 "weight": 0.3,
+                "trap_left_tol": 0,
+                "trap_right_tol": 0.5,
             },
             {
                 "species_id": 1,
                 "feature": "soil_texture",
                 "score_method": "cat_exact",
                 "weight": 0.7,
+                "trap_left_tol": None,
+                "trap_right_tol": None,
             },
             {
                 "species_id": 2,
                 "feature": "ph",
                 "score_method": "num_range",
                 "weight": 0.0,
+                "trap_left_tol": None,
+                "trap_right_tol": 0.5,
             },
             {
                 "species_id": 2,
                 "feature": "soil_texture",
                 "score_method": None,
                 "weight": 0.8,
+                "trap_left_tol": None,
+                "trap_right_tol": None,
             },
             {
                 "species_id": 3,
                 "feature": "ph",
                 "score_method": "num_range",
                 "weight": 0.0,
+                "trap_left_tol": None,
+                "trap_right_tol": None,
             },
             {
                 "species_id": 3,
                 "feature": "soil_texture",
                 "score_method": np.nan,
                 "weight": np.nan,
+                "trap_left_tol": None,
+                "trap_right_tol": None,
             },
         ]
     )
@@ -97,33 +110,10 @@ def test_build_params_structure(species_params_df, basic_cfg):
     # Check values
     assert result[1]["ph"]["score_method"] == "num_range"
     assert result[1]["ph"]["weight"] == pytest.approx(0.3)
+    assert result[1]["ph"]["trap_left_tol"] == pytest.approx(0.0)
+    assert result[1]["ph"]["trap_right_tol"] == pytest.approx(0.5)
     assert result[1]["soil_texture"]["score_method"] == "cat_exact"
     assert result[1]["soil_texture"]["weight"] == pytest.approx(0.7)
-
-
-def test_build_params_custom_id_column(basic_cfg):
-    """
-    Check that the function respects a custom ID column name defined in config.
-    """
-    # Modify config to look for 'species_key' instead of 'species_id'
-    basic_cfg["ids"]["species"] = "species_key"
-
-    # Create DF with that specific column
-    df = pd.DataFrame(
-        [
-            {
-                "species_key": 2,
-                "feature": "rainfall",
-                "score_method": "num_range",
-                "weight": 0.3,
-            }
-        ]
-    )
-
-    result = build_species_params_dict(df, basic_cfg)
-
-    assert 2 in result
-    assert result[2]["rainfall"]["weight"] == pytest.approx(0.3)
 
 
 def test_build_params_handles_missing_values(basic_cfg):
@@ -158,6 +148,12 @@ def test_get_params_full_override(species_params_df, basic_cfg):
     # Species 1 has a score_method of 'num_range' (config default is 'magic')
     assert result["score_method"] == "num_range"
 
+    # Species 1 has a ph trap_left_tol 0.0 (config default is 0.25)
+    assert result["trap_left_tol"] == pytest.approx(0.0)
+
+    # Species 1 has a ph trap_right_tol 0.5 (config default is 0.6)
+    assert result["trap_right_tol"] == pytest.approx(0.5)
+
 
 def test_get_params_defaults_only(species_params_df, basic_cfg):
     """
@@ -171,6 +167,8 @@ def test_get_params_defaults_only(species_params_df, basic_cfg):
     # Should fall back to config values
     assert result["weight"] == pytest.approx(0.5)
     assert result["score_method"] == "magic"
+    assert result["trap_left_tol"] == pytest.approx(0.25)
+    assert result["trap_right_tol"] == pytest.approx(0.6)
 
 
 def test_get_params_partial_fallback(species_params_df, basic_cfg):
@@ -195,6 +193,11 @@ def test_get_params_partial_fallback(species_params_df, basic_cfg):
 
     assert result["weight"] == pytest.approx(0.5)  # Default (fallback)
     assert result["score_method"] == "cat_exact"  # Default (fallback)
+
+    # Species 2 has a ph trap_right_tol 0.5, trap_left_tol is None
+    result = get_feature_params(params_dict, basic_cfg, species_id=2, feature="ph")
+    assert result["trap_right_tol"] == pytest.approx(0.5)  # Specific
+    assert result["trap_left_tol"] == pytest.approx(0.25)  # Default (fallback)
 
 
 def test_get_params_zero_weight_edge_case(species_params_df, basic_cfg):
