@@ -28,14 +28,13 @@ run `just [target]` in `/backend` to execute.
 | Target | Purpose | Shell Commands Executed |
 | :--- | :--- | :--- |
 | **`help`** | Shows all available `just` commands | Iterates over all targets and outputs to the terminal |
-| **`setup`** | Initializes the database container from scratch (`db-teardown`, `db-start`, `db-migrate`, ), starts the service, and applies all pending Alembic migrations. | 1. `docker compose down` (via `db-stop`)<br> 2. `docker compose up -d db` (via `db-start`)<br> 3. `sleep 5` <br> 4. **`uv run dotenv run alembic upgrade head` (via `db-apply`)** |
-| **`populate`** | Wipes the DB, migrates, and ingests all CSV data. | Runs `setup_import_db.py` | 
-| **`db-stop`** | Stops the PostgreSQL container. | `docker compose down` |
-| **`db-start`** | Ensures a clean state (`db-teardown`) then starts the PostgreSQL container service in detached mode. | 1. `docker compose down -v` (via `db-teardown`) 2. `docker compose up -d db` 3. `sleep 5` |
-| **`revision`** | **GENERATES** a new Alembic migration script based on changes detected in your Python models. **Requires `M="message"`**. After running, you must **review the script** before running `just db-migrate`. | `uv run dotenv run alembic revision --autogenerate -m "message"` |
-| **`db-migrate`** | Applies any pending Alembic migration scripts to upgrade the database schema to the latest version. This is the final step after creating and reviewing a script. | `uv run dotenv run alembic upgrade head` |
+| **`stop`** | Stops the PostgreSQL container. | `docker compose down` |
+| **`start`** | Ensures a clean state (`stop`) then starts the PostgreSQL container service in detached mode. | 1. `docker compose down -v` (via `stop`) 2. `docker compose up -d db` 3. `sleep 5` |
+| **`setup`** | Initializes the database container from scratch (`stop`, `start`, `migrate`, ), starts the service, and applies all pending Alembic migrations. | 1. `docker compose down` (via `stop`)<br> 2. `docker compose up -d db` (via `start`)<br> 3. `sleep 5` <br> 4. **`uv run dotenv run alembic upgrade head` (via `migrate`)** |
+| **`revision`** | **GENERATES** a new Alembic migration script based on changes detected in your Python models. **Requires `M="message"`**. After running, you must **review the script** before running `just migrate`. | `uv run dotenv run alembic revision --autogenerate -m "message"` |
+| **`migrate`** | Applies any pending Alembic migration scripts to upgrade the database schema to the latest version. This is the final step after creating and reviewing a script. | `uv run dotenv run alembic upgrade head` |
+| **`populate`** | Wipes the DB, migrates, and ingests all CSV data. Outputs state of database setup statistics to terminal | Runs `setup_import_db.py` |
 | **`test`** | Executes the full test suite using Pytest on the contents of the `tests/` directory. | `uv run dotenv run pytest tests/` |
-| **`db-stop`** | Stops the running PostgreSQL container without removing the data volumes, preserving current data. | `docker compose stop` |
 | **`schema`** | Generates a markdown formatted schema diagram and writes it to **`SCHEMA.md`**. | `uv run dotenv run python -m src.generate_schema > SCHEMA.md` |
 | **`erd`** | Generates a mermaid Entity-Relationship Diagram of the database and outputs to **`ERD.md`**. | `uv run dotenv run python -m src.generate_erd` |
 | **`psql`** | Starts an interactive psql DB session | `docker exec -it pot_postgres_db psql -U postgres -d POT_db` |
