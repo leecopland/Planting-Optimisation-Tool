@@ -37,6 +37,7 @@ dependencies = [
 # Add the 'backend/' directory to the Python path so tests can find src/ etc.
 pythonpath = [
     ".",
+    "../gis"
 ]
 
 testpaths = [
