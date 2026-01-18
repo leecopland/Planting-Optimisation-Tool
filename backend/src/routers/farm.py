@@ -50,7 +50,7 @@ async def read_farm_endpoint(
     current_user: User = CurrentActiveUser,
 ):
     """
-    Retrieves 1/M farm by ID, ensuring the requesting user is the owner.
+    Retrieves one or many farms by ID, ensuring the requesting user is the owner.
     """
     farms = await get_farm_by_id(db, farm_ids=[farm_id], user_id=current_user.id)
 
