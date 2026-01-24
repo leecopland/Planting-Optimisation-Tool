@@ -63,13 +63,11 @@ pre-commit installed at .git/hooks/pre-commit
 backend $ uv run pre-commit run --all-files # dry run to confirm successful installation.
 ```
 
-Activating the virtual environment (required for switching between uv projects)
+Create and activate the virtual environment
 ```bash
-backend $ source .venv/bin/activate     # Activates the virtual environment
-backend $ deactivate                    # Deactivates the virtual environment, needed for swapping between backend and other teams
-...
-backend $ cd ../datascience             # Switch to the datascience project (for example)
-backend $ source .venv/bin/activate     # Activate the virtual environment of that uv project
+backend $ uv venv  # Creates the isolated Python virtual environment (.venv). (Only done once).
+backend $ source .venv/bin/activate # Activates the virtual environment
+backend $ deactivate    # Deactivates the virtual environment, needed for swapping between backend and other teams
 ```
 an `.env` file must be present including:
 - PostgreSQL user credentials
@@ -77,7 +75,7 @@ an `.env` file must be present including:
 
 `.env.example` has been included in the repository, and an `.env` file will be created via the `ensure-env` target when a [just](#justfile-commands) command is run for the first time.
 
-To successfully run the `generate_environmental_profile` feature from the `GIS` subdirectory, a Google Earth Engine service account must be registered (keys included in handover documentation).
+To successfully run the `generate_environmental_profile` feature from the `GIS` subdirectory, a Google Earth Engine service account must be registered (service sccount details included in handover documentation).
 
 #### Once this is complete, please proceed to [justfile](#justfile-commands) for initial data ingestion.
 
