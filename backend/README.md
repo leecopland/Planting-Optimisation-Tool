@@ -3,12 +3,7 @@
 ## Getting started
 Most of the general information on getting started with the project is in [CONTRIBUTING.md](../CONTRIBUTING.md)
 
-Clone the repository, then
-```bash
-$ cd Planting-Optimisation-Tool/backend
-backend $ uv python install     # to install the python version defined in pyproject.toml
-backend $ uv sync               # to install the projects dependencies
-```
+Fork and Clone the repository first, instructions [here](https://github.com/Chameleon-company/Planting-Optimisation-Tool/blob/master/CONTRIBUTING.md#1-fork-and-clone-the-repository)
 
 Backend specific prerequisites:
 
@@ -20,6 +15,32 @@ An extremely fast Python package manager.
 Usage: uv [OPTIONS] <COMMAND>
 ...
 ```
+Use uv to install `python` version for the project and fetch the project dependencies.
+```bash
+$ cd Planting-Optimisation-Tool/backend
+backend $ uv python install     # to install the python version defined in pyproject.toml
+backend $ uv sync               # to install the projects dependencies
+```
+
+Docker is needed to create the database container and must be running.
+
+#### Windows:
+
+Download and install Docker Desktop:
+
+https://docs.docker.com/desktop/setup/install/windows-install/
+
+Ensure it is open and running before proceeding
+
+
+#### Linux/macOS:
+https://docs.docker.com/get-started/get-docker/
+```bash
+backend $ docker compose version
+Docker Compose version v2.40.3-desktop.1
+```
+
+
 Make sure [just](https://github.com/casey/just) is installed, confirm with:
 ```bash
 backend $ just help
@@ -29,6 +50,7 @@ Available recipes:
     kill-api         # Stops the API server
     ...
 ```
+
 Optionally, install [pre-commit](https://pre-commit.com/#install) for ease-of-use:
 ```bash
 backend $ uv sync   # to install project dependencies
@@ -39,12 +61,13 @@ pre-commit installed at .git/hooks/pre-commit
 backend $ uv run pre-commit run --all-files # dry run to confirm successful installation.
 ```
 
-
-Create and activate the virtual environment
+Activating the virtual environment (required for switching between uv projects)
 ```bash
-backend $ uv venv  # Creates the isolated Python virtual environment (.venv). (Only done once).
-backend $ source .venv/bin/activate # Activates the virtual environment
-backend $ deactivate    # Deactivates the virtual environment, needed for swapping between backend and other teams
+backend $ source .venv/bin/activate     # Activates the virtual environment
+backend $ deactivate                    # Deactivates the virtual environment, needed for swapping between backend and other teams
+...
+backend $ cd ../datascience             # Switch to the datascience project (for example)
+backend $ source .venv/bin/activate     # Activate the virtual environment of that uv project
 ```
 an `.env` file must be present including:
 - PostgreSQL user credentials
