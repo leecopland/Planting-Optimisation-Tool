@@ -93,8 +93,10 @@ jobs:
             TARGET_STATUS_ID="$SPRINT_BACKLOG_ID"
           fi
 
-          # ── 4. Loop through sub-issues ────────────────────────────────────
-          echo "$SUB_ISSUES" | jq -c '.[]' | while read -r sub; do
+          # ── 4. Store sub-issues in array instead of using while loop ──────
+          mapfile -t SUB_ISSUES_ARRAY < <(echo "$SUB_ISSUES" | jq -c '.[]')
+          
+          for sub in "${SUB_ISSUES_ARRAY[@]}"; do
             SUB_NUMBER=$(echo "$sub" | jq -r '.number')
             SUB_NODE_ID=$(echo "$sub" | jq -r '.nodeId')
 
@@ -102,32 +104,37 @@ jobs:
             if [ "$EVENT_ACTION" = "assigned" ]; then
               echo "Assigning #$SUB_NUMBER to $ASSIGNEE"
               gh api --method POST \
-                repos/$REPO_OWNER/$REPO_NAME/issues/$SUB_NUMBER/assignees \
+                "/repos/$REPO_OWNER/$REPO_NAME/issues/$SUB_NUMBER/assignees" \
                 -f "assignees[]=$ASSIGNEE"
             else
               echo "Unassigning $ASSIGNEE from #$SUB_NUMBER"
+              # Fixed: Use a temp file to avoid stdin issues
+              echo "{\"assignees\": [\"$ASSIGNEE\"]}" | \
               gh api --method DELETE \
-              repos/$REPO_OWNER/$REPO_NAME/issues/$SUB_NUMBER/assignees \
-              --input - <<< "{\"assignees\": [\"$ASSIGNEE\"]}"
+                "/repos/$REPO_OWNER/$REPO_NAME/issues/$SUB_NUMBER/assignees" \
+                --input -
             fi
 
-            # Update project board status
+            # Update project board status (for both assign and unassign)
             if [ -n "$PROJECT_ID" ] && [ -n "$STATUS_FIELD_ID" ] && [ -n "$TARGET_STATUS_ID" ]; then
               ITEM_ID=$(gh api graphql -f query='
                 query($id: ID!) {
                   node(id: $id) {
                     ... on Issue {
                       projectItems(first: 5) {
-                        nodes { id project { id } }
+                        nodes { 
+                          id 
+                          project { id }
+                        }
                       }
                     }
                   }
                 }' -f id="$SUB_NODE_ID" \
                 --jq --arg pid "$PROJECT_ID" \
-                '.data.node.projectItems.nodes[] | select(.project.id==$pid) | .id')
+                '.data.node.projectItems.nodes[] | select(.project.id==$pid) | .id' 2>/dev/null || echo "")
 
-              if [ -n "$ITEM_ID" ]; then
-                echo "Setting #$SUB_NUMBER status on board"
+              if [ -n "$ITEM_ID" ] && [ "$ITEM_ID" != "null" ]; then
+                echo "Setting #$SUB_NUMBER status on board to $(if [ "$EVENT_ACTION" = "assigned" ]; then echo "In Progress"; else echo "Sprint Backlog"; fi)"
                 gh api graphql -f query='
                   mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
                     updateProjectV2ItemFieldValue(input: {
