@@ -63,11 +63,13 @@ pre-commit installed at .git/hooks/pre-commit
 backend $ uv run pre-commit run --all-files # dry run to confirm successful installation.
 ```
 
-Create and activate the virtual environment
+Activating the virtual environment (required for switching between uv projects)
 ```bash
-backend $ uv venv  # Creates the isolated Python virtual environment (.venv). (Only done once).
-backend $ source .venv/bin/activate # Activates the virtual environment
-backend $ deactivate    # Deactivates the virtual environment, needed for swapping between backend and other teams
+backend $ source .venv/bin/activate     # Activates the virtual environment
+backend $ deactivate                    # Deactivates the virtual environment, needed for swapping between backend and other teams
+...
+backend $ cd ../datascience             # Switch to the datascience project (for example)
+backend $ source .venv/bin/activate     # Activate the virtual environment of that uv project
 ```
 an `.env` file must be present including:
 - PostgreSQL user credentials
