@@ -40,6 +40,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
 
     - name: Install uv
       uses: astral-sh/setup-uv@v6
@@ -111,18 +113,22 @@ jobs:
         export DATABASE_URL="postgresql+asyncpg://postgres:devpassword@localhost:5432/pot_test_db"
         uv run pytest
 
-    - name: Fetch base branch for diff-cover
+    - name: Fetch base branch and check for backend changes
+      id: backend-changes
       if: github.event_name == 'pull_request'
-      run: git fetch origin master --depth=1
+      run: |
+        CHANGED=$(git diff --name-only origin/master...HEAD -- 'backend/**/*.py' | wc -l)
+        echo "has_changes=$([ "$CHANGED" -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
     - name: Diff coverage report
-      if: github.event_name == 'pull_request'
-      run: uv run diff-cover coverage.xml --compare-branch=origin/master --markdown-report=diff-coverage.md
+      id: diff-cover
+      if: github.event_name == 'pull_request' && steps.backend-changes.outputs.has_changes == 'true'
+      run: uv run diff-cover coverage.xml --compare-branch=origin/master --format markdown:diff-coverage.md
       continue-on-error: true
 
     - name: Post coverage comment
       uses: marocchino/sticky-pull-request-comment@v2
-      if: github.event_name == 'pull_request'
+      if: github.event_name == 'pull_request' && steps.diff-cover.outcome == 'success'
       with:
         header: diff-coverage
         path: backend/diff-coverage.md
