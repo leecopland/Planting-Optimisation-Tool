@@ -10,7 +10,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_db_session
-from src.dependencies import get_current_user, require_role
+from src.dependencies import get_current_user, require_ownership_or_admin, require_role
 from src.models.user import User
 from src.schemas.user import Role, UserCreate, UserRead, UserUpdate
 from src.services import authentication as authentication_service

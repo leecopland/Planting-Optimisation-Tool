@@ -93,6 +93,17 @@ role_hierarchy = {
 }
 
 
+def require_ownership_or_admin(current_user: User, requested_user_id: int) -> None:
+    """Raises 403 if an officer attempts to access another user's record.
+    Supervisors and admins may access any record.
+    """
+    if current_user.role == Role.OFFICER.value and current_user.id != requested_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Not authorized to access this user",
+        )
+
+
 def require_role(required_role: Role):
     """FastAPI dependency factory for role-based access control.
 
