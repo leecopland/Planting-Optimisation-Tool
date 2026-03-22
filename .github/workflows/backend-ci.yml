@@ -123,6 +123,7 @@ jobs:
       id: backend-changes
       if: github.event_name == 'pull_request'
       run: |
+        git fetch origin master
         CHANGED=$(git diff --name-only origin/master...HEAD -- 'backend/**/*.py' | wc -l)
         echo "has_changes=$([ "$CHANGED" -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
