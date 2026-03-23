@@ -14,12 +14,13 @@ async def get_user_by_id(db: AsyncSession, user_id: int):
 
 async def create_user(db: AsyncSession, user: UserCreate) -> User:
     """Creates a new user. Raises ValueError if the email is already registered."""
-    result = await db.execute(select(User).filter(User.email == user.email))
+    normalized_email = user.email.strip().lower()
+    result = await db.execute(select(User).filter(User.email == normalized_email))
     if result.scalar_one_or_none():
         raise ValueError("Email already registered")
 
     db_user = User(
-        email=user.email,
+        email=normalized_email,
         name=user.name,
         hashed_password=get_password_hash(user.password),
         role=user.role,
@@ -44,6 +45,10 @@ async def update_user(db: AsyncSession, user_id: int, user: UserUpdate) -> User 
         return None
 
     if user.email is not None:
+        if user.email != db_user.email:
+            dup = await db.execute(select(User).filter(User.email == user.email, User.id != user_id))
+            if dup.scalar_one_or_none():
+                raise ValueError("Email already registered")
         db_user.email = user.email
     if user.name is not None:
         db_user.name = user.name

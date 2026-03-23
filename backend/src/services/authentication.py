@@ -25,6 +25,7 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> Opti
     Returns:
         User object if authentication succeeds, None otherwise
     """
+    email = email.strip().lower()
     result = await db.execute(select(User).filter(User.email == email))
     user = result.scalar_one_or_none()
     if not user:
