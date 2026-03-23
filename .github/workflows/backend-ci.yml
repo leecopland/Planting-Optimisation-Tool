@@ -131,11 +131,17 @@ jobs:
       id: diff-cover
       if: github.event_name == 'pull_request' && steps.backend-changes.outputs.has_changes == 'true'
       run: uv run diff-cover coverage.xml --compare-branch=origin/master --format markdown:diff-coverage.md
-      continue-on-error: true
 
-    - name: Post coverage comment
-      uses: marocchino/sticky-pull-request-comment@v2
+    - name: Save PR number
+      if: github.event_name == 'pull_request'
+      run: echo "${{ github.event.pull_request.number }}" > pr_number.txt
+
+    - name: Upload diff-coverage artifacts
       if: github.event_name == 'pull_request' && steps.diff-cover.outcome == 'success'
+      uses: actions/upload-artifact@v4
       with:
-        header: diff-coverage
-        path: backend/diff-coverage.md
+        name: diff-coverage
+        path: |
+          backend/diff-coverage.md
+          backend/pr_number.txt
+        retention-days: 1
