@@ -71,7 +71,10 @@ async def update_user(
     db: AsyncSession = Depends(get_db_session),
     current_user: User = Depends(require_role(Role.ADMIN)),
 ):
-    db_user = await user_service.update_user(db, user_id, user)
+    try:
+        db_user = await user_service.update_user(db, user_id, user)
+    except ValueError as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
     if db_user is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return db_user

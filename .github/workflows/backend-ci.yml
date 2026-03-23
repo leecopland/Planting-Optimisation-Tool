@@ -132,6 +132,18 @@ jobs:
       if: github.event_name == 'pull_request' && steps.backend-changes.outputs.has_changes == 'true'
       run: uv run diff-cover coverage.xml --compare-branch=origin/master --format markdown:diff-coverage.md
 
+    - name: Trim coverage report to summary only
+      if: github.event_name == 'pull_request' && steps.diff-cover.outcome == 'success'
+      run: |
+        python3 << 'EOF'
+        import re
+        with open('diff-coverage.md') as f:
+            content = f.read()
+        content = re.split(r'\n{2,}## backend/', content)[0].strip()
+        with open('diff-coverage.md', 'w') as f:
+            f.write(content)
+        EOF
+
     - name: Save PR number
       if: github.event_name == 'pull_request'
       run: echo "${{ github.event.pull_request.number }}" > pr_number.txt

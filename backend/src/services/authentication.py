@@ -28,10 +28,13 @@ async def authenticate_user(db: AsyncSession, email: str, password: str) -> Opti
     email = email.strip().lower()
     result = await db.execute(select(User).filter(User.email == email))
     user = result.scalar_one_or_none()
+
     if not user:
         return None
+
     if not verify_password(password, user.hashed_password):
         return None
+
     return user
 
 
