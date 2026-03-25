@@ -27,13 +27,6 @@ __pycache__/
 .env
 keys/
 
-# Assets & temporary data
-assets/
-
-# Local scripts not needed in repo
-main.py
-test_main.py
-
 # Test caches
 tests/**/__pycache__/
 tests/.pytest_cache/
