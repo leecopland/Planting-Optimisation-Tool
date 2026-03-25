@@ -9,6 +9,7 @@ __all__ = [
     "Role",
     "UserBase",
     "UserCreate",
+    "UserUpdate",
     "UserRead",
     "UserLogin",
     "Token",
@@ -21,6 +22,11 @@ class UserBase(BaseModel):
     email: EmailStr = Field(..., description="The user's unique email address.")
     name: str = Field(..., description="The user's full name.")
 
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.strip().lower()
+
 
 # Used for registration (requires password input)
 class UserCreate(UserBase):
@@ -28,13 +34,66 @@ class UserCreate(UserBase):
         ...,
         description="The user's password (must be hashed before storage).",
     )
-    role: str = "officer"
+    role: Role = Role.OFFICER
 
-    @field_validator("password")
+    @field_validator("password", mode="before")
     @classmethod
-    def password_min_length(cls, v: str) -> str:
+    def validate_password_complexity(cls, v: str) -> str:
         if len(v) < 8:
             raise ValueError("Password must be at least 8 characters long")
+
+        if not any(char.isupper() for char in v):
+            raise ValueError("Password must contain at least one uppercase letter")
+
+        if not any(char.islower() for char in v):
+            raise ValueError("Password must contain at least one lowercase letter")
+
+        if not any(char.isdigit() for char in v):
+            raise ValueError("Password must contain at least one number")
+
+        special_characters = r"!@#$%^&*()_+-=[]{}|;:',.<>/?`~\"\\"
+        if not any(char in special_characters for char in v):
+            raise ValueError("Password must contain at least one special character")
+
+        return v
+
+    @field_validator("role")
+    @classmethod
+    def validate_role(cls, v: Role) -> Role:
+        if v not in Role:
+            raise ValueError("Invalid role")
+        return v
+
+
+# Used for updating user details (all fields optional)
+class UserUpdate(BaseModel):
+    email: Optional[EmailStr] = None
+    name: Optional[str] = None
+    password: Optional[str] = None
+    role: Optional[Role] = None
+
+    @field_validator("password", mode="before")
+    @classmethod
+    def validate_password_complexity_update(cls, v: str | None) -> str | None:
+        if v is None:
+            return v
+
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+
+        if not any(char.isupper() for char in v):
+            raise ValueError("Password must contain at least one uppercase letter")
+
+        if not any(char.islower() for char in v):
+            raise ValueError("Password must contain at least one lowercase letter")
+
+        if not any(char.isdigit() for char in v):
+            raise ValueError("Password must contain at least one number")
+
+        special_characters = r"!@#$%^&*()_+-=[]{}|;:',.<>/?`~\"\\"
+        if not any(char in special_characters for char in v):
+            raise ValueError("Password must contain at least one special character")
+
         return v
 
 
@@ -42,7 +101,7 @@ class UserCreate(UserBase):
 # NEVER INCLUDE PASSWORD
 class UserRead(UserBase):
     id: int = Field(..., description="The unique database ID of the user.")
-    role: str = Field(..., description="The user's role.")
+    role: Role = Field(..., description="The user's role.")
 
     model_config = ConfigDict(from_attributes=True)
 

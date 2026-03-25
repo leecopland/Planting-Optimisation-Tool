@@ -36,3 +36,8 @@ tests/.pytest_cache/
 
 # Egg info
 *.egg-info/
+
+
+# Intellij project files
+.idea
+
