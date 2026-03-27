@@ -15,8 +15,8 @@ repos:
         name: pytest (backend)
         entry: just -f backend/justfile test
         language: system
+        files: ^backend/
         pass_filenames: false
-        always_run: true
 
 # ── Datascience ───────────────────────────────────────────────────────────────
       - id: ruff-check-datascience
