@@ -21,21 +21,21 @@ repos:
 # ── Datascience ───────────────────────────────────────────────────────────────
       - id: ruff-check-datascience
         name: ruff check (datascience)
-        entry: bash -c 'cd datascience && uv run ruff check --fix'
+        entry: uv run --directory datascience ruff check --fix
         language: system
         files: ^datascience/
         types: [python]
         pass_filenames: false
       - id: ruff-format-datascience
         name: ruff format (datascience)
-        entry: bash -c 'cd datascience && uv run ruff format .'
+        entry: uv run --directory datascience ruff format .
         language: system
         files: ^datascience/
         types: [python]
         pass_filenames: false
       - id: pytest-datascience
         name: pytest (datascience)
-        entry: bash -c 'cd datascience && uv run pytest'
+        entry: uv run --directory datascience pytest
         language: system
         files: ^datascience/
         pass_filenames: false
@@ -43,21 +43,21 @@ repos:
 # ── GIS ───────────────────────────────────────────────────────────────────────
       - id: ruff-check-gis
         name: ruff check (gis)
-        entry: bash -c 'cd gis && uv run ruff check --fix'
+        entry: uv run --directory gis ruff check --fix
         language: system
         files: ^gis/
         types: [python]
         pass_filenames: false
       - id: ruff-format-gis
         name: ruff format (gis)
-        entry: bash -c 'cd gis && uv run ruff format .'
+        entry: uv run --directory gis ruff format .
         language: system
         files: ^gis/
         types: [python]
         pass_filenames: false
       - id: pytest-gis
         name: pytest (gis)
-        entry: bash -c 'cd gis && uv run pytest'
+        entry: uv run --directory gis pytest
         language: system
         files: ^gis/
         pass_filenames: false
