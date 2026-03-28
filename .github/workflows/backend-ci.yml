@@ -118,7 +118,6 @@ jobs:
       run: |
         export DATABASE_URL="postgresql+asyncpg://postgres:devpassword@localhost:5432/pot_test_db"
         export TESTING=true
-        export RATELIMIT_ENABLED=false
         uv run pytest
 
     - name: Fetch base branch and check for backend changes
