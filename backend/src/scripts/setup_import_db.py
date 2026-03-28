@@ -44,6 +44,7 @@ def main():
     env["PYTHONUTF8"] = "1"
     env["NO_COLOR"] = "1"
     env["TERM"] = "dumb"
+    env["RATELIMIT_ENABLED"] = "false"
 
     with open("api_log.txt", "w", encoding="utf-8") as log_file:
         api_proc = subprocess.Popen(
