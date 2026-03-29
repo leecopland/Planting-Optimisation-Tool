@@ -36,6 +36,8 @@ def wait_for_api(url="127.0.0.1", port=8080, timeout=15):
 
 
 def main():
+    subprocess.run(["uv", "run", "python", "-m", "src.scripts.kill-api"], check=False)
+
     print(f"{BLUE}===================================================={NC}")
     print(f"{BLUE} Starting Database Initialization{NC}")
     print(f"{BLUE}===================================================={NC}")
