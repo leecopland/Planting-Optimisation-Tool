@@ -33,10 +33,10 @@ stop:
     @docker compose down
     @echo "--- PostgreSQL Container Stopped ---"
 
-# Starts the PostgreSQL Container
+# Starts the PostgreSQL and Redis containers
 start:
-    @echo "--- Starting PostgreSQL Container ---"
-    @docker compose up -d {{SERVICE_NAME}}
+    @echo "--- Starting Containers ---"
+    @docker compose up -d {{SERVICE_NAME}} redis
     @echo "Waiting for DB to be ready..."
     @{{PYTHON}} -c "import time; time.sleep(5)"
 
@@ -87,8 +87,9 @@ erd: ensure-env
     @{{PYTHON}} -c "print(chr(96)*3)" >> ERD.md
     @echo "--- ERD.md created successfully. ---"
 
-# Starts the FastAPI server
+# Starts the FastAPI server (and Redis if not already running)
 run-api: ensure-env
+    @docker compose up -d redis
     -@{{UV_RUNNER}} {{FASTAPI_CMD}}
 
 # WARNING: Destructive. Wipes the database and re-populates from scratch.
