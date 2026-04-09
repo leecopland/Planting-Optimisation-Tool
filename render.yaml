@@ -53,7 +53,6 @@ services:
     buildCommand: npm install && npm run build
     staticPublishPath: ./frontend/build/dist
     rootDir: frontend
-    plan: free
     envVars:
       # These are set manually in the Render dashboard - never commit the values.
       - key: VITE_SPACE_ID
