@@ -7,7 +7,7 @@ from src.models.farm import Farm
 
 
 @pytest.fixture
-async def setup_farm(async_session, officer_user):  # sapling_estimation router requires OFFICER role or higher
+async def setup_farm(async_session, test_officer_user):  # sapling_estimation router requires OFFICER role or higher
     await async_session.execute(text("TRUNCATE dem_table RESTART IDENTITY;"))
     await async_session.execute(
         text(
@@ -47,7 +47,7 @@ async def setup_farm(async_session, officer_user):  # sapling_estimation router 
         shade_tolerant=False,
         bank_stabilising=False,
         slope=5,
-        user_id=officer_user.id,
+        user_id=test_officer_user.id,
     )
     async_session.add(farm)
     await async_session.flush()
