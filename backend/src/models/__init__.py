@@ -36,10 +36,7 @@ __all__ = [
     "PlantingEstimate",
     "SpeciesExclusionRule",
     "SpeciesDependency",
-<<<<<<< fix/migrate-dem-table-v2
     "DemTable",
-=======
     "SoilPH",
     "SoilTextureSpatial",
->>>>>>> master
 ]
