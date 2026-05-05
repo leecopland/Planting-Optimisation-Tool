@@ -9,3 +9,6 @@ class DemTable(Base):
 
     rid: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     rast: Mapped[bytes | None] = mapped_column(Raster, nullable=True)
+
+    def __repr__(self) -> str:
+        return f"DemTable(rid={self.rid!r})"
