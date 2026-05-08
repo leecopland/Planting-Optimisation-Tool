@@ -36,7 +36,11 @@ export default function CalculatorPage() {
       {hasSearched && result && (
         <div className="calc-results-layout">
           <CalculatorResult result={result} />
-          <FarmMap boundary={boundary} grid={grid} optimalAngle={result.optimal_angle} />
+          <FarmMap
+            boundary={boundary}
+            grid={grid}
+            optimalAngle={result.optimal_angle}
+          />
         </div>
       )}
     </div>

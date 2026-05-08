@@ -11,7 +11,12 @@ interface Props {
   spacingY?: number;
 }
 
-export default function FarmMap({ boundary, grid, optimalAngle, spacingY = 3 }: Props) {
+export default function FarmMap({
+  boundary,
+  grid,
+  optimalAngle,
+  spacingY = 3,
+}: Props) {
   const bounds = useMemo(() => {
     if (!boundary) return null;
     try {
@@ -56,7 +61,11 @@ export default function FarmMap({ boundary, grid, optimalAngle, spacingY = 3 }: 
   return (
     <div className="calc-map-container">
       <h3>Planting Map</h3>
-      <MapContainer bounds={bounds} style={{ height: "450px", width: "100%" }} scrollWheelZoom={false}>
+      <MapContainer
+        bounds={bounds}
+        style={{ height: "450px", width: "100%" }}
+        scrollWheelZoom={false}
+      >
         <TileLayer
           url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
           attribution="Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community"
@@ -64,14 +73,24 @@ export default function FarmMap({ boundary, grid, optimalAngle, spacingY = 3 }: 
         {boundary && (
           <GeoJSON
             data={boundary}
-            style={{ color: "#ffffff", weight: 2, fillOpacity: 0.3, fillColor: "#ff4444" }}
+            style={{
+              color: "#ffffff",
+              weight: 2,
+              fillOpacity: 0.3,
+              fillColor: "#ff4444",
+            }}
           />
         )}
         {gridLines.map((line, index) => (
           <Polyline
             key={index}
             positions={line}
-            pathOptions={{ color: "#ffff00", weight: 1, dashArray: "4 4", opacity: 0.55 }}
+            pathOptions={{
+              color: "#ffff00",
+              weight: 1,
+              dashArray: "4 4",
+              opacity: 0.55,
+            }}
           />
         ))}
         {grid && (

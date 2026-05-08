@@ -10,7 +10,12 @@ vi.mock("@/hooks/useCalculator", () => ({
 }));
 
 vi.mock("@/hooks/useFarmMap", () => ({
-  useFarmMap: vi.fn(() => ({ boundary: null, grid: null, isLoading: false, error: null })),
+  useFarmMap: vi.fn(() => ({
+    boundary: null,
+    grid: null,
+    isLoading: false,
+    error: null,
+  })),
 }));
 
 import { useCalculator } from "@/hooks/useCalculator";
