@@ -56,7 +56,7 @@ jobs:
       if: github.event_name == 'pull_request'
       run: |
         git fetch origin
-        CHANGED=$(git diff --name-only origin/master...HEAD -- '**/*.py' | wc -l)
+        CHANGED=$(git diff --name-only origin/master...HEAD -- 'gis/**/*.py' | wc -l)
         echo "has_changes=$([ "$CHANGED" -gt 0 ] && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
     - name: Diff coverage report
@@ -72,6 +72,7 @@ jobs:
         with open('diff-coverage.md') as f:
             content = f.read()
         content = re.split(r'\n{2,}## gis/', content)[0].strip()
+        content = f"### GIS Diff Coverage\n\n{content}"
         with open('diff-coverage.md', 'w') as f:
             f.write(content)
         EOF
