@@ -9,6 +9,10 @@ vi.mock("@/hooks/useCalculator", () => ({
   useCalculator: vi.fn(),
 }));
 
+vi.mock("@/hooks/useFarmMap", () => ({
+  useFarmMap: vi.fn(() => ({ boundary: null, grid: null, isLoading: false, error: null })),
+}));
+
 import { useCalculator } from "@/hooks/useCalculator";
 
 describe("CalculatorPage Integration", () => {

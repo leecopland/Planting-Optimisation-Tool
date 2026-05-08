@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.database import get_db_session
 from src.dependencies import get_current_user, require_role
-from src.schemas.farm import FarmCreate, FarmRead, FarmUpdate
+from src.schemas.farm import FarmBoundaryResponse, FarmCreate, FarmRead, FarmUpdate
 from src.schemas.user import Role, UserRead
 from src.services import farm as farm_service
 from src.services.riparian import get_riparian_flags
@@ -37,6 +37,19 @@ async def create_farm(
 
 # NOTE: When a farm boundary update endpoint is added, invalidate cached results for that farm:
 #   await cache.invalidate(f"profile:{farm_id}", f"sapling:{farm_id}", f"rec:{farm_id}")
+
+
+@router.get("/{farm_id}/boundary", response_model=FarmBoundaryResponse)
+async def get_farm_boundary(
+    farm_id: int,
+    db: AsyncSession = Depends(get_db_session),
+    current_user: UserRead = Depends(get_current_user),
+):
+    """Returns the farm boundary as a GeoJSON Feature. Requires any authenticated role."""
+    boundary = await farm_service.get_farm_boundary(db, farm_id)
+    if boundary is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Boundary not found for farm {farm_id}.")
+    return boundary
 
 
 @router.get("/{farm_id}", response_model=FarmRead)
