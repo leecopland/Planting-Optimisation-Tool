@@ -18,7 +18,7 @@ export default function CalculatorSearch({
   const [maxSlope, setMaxSlope] = useState(DEFAULT_CALC_PARAMS.maxSlope);
 
   const handleSearch = () => {
-    if (!farmId.trim()) return;
+    if (!farmId.trim() || spacingX <= 0 || spacingY <= 0) return;
     onSearch(farmId, { spacingX, spacingY, maxSlope });
   };
 
@@ -88,7 +88,7 @@ export default function CalculatorSearch({
       <button
         className="calc-primary-btn"
         onClick={handleSearch}
-        disabled={isLoading || !farmId.trim()}
+        disabled={isLoading || !farmId.trim() || spacingX <= 0 || spacingY <= 0}
       >
         {isLoading ? "Estimating Saplings..." : "Generate Planting Plan"}
       </button>

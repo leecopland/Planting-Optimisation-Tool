@@ -31,6 +31,7 @@
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
     "@types/jsdom": "^21.1.7",
+    "@types/leaflet": "^1.9.21",
     "@types/node": "^24.0.10",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
@@ -62,7 +63,6 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@types/leaflet": "^1.9.21",
     "contentful": "^11.10.2",
     "leaflet": "^1.9.4",
     "react": "^19.2.4",
