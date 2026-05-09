@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
-import { useCalculator } from "@/hooks/useCalculator";
+import { useCalculator, DEFAULT_CALC_PARAMS } from "@/hooks/useCalculator";
+import type { CalcParams } from "@/hooks/useCalculator";
 import { useFarmMap } from "@/hooks/useFarmMap";
 import CalculatorHeader from "@/components/calculator/calculatorHeader";
 import CalculatorSearch from "@/components/calculator/calculatorSearch";
@@ -10,8 +11,14 @@ import "@/components/calculator/calculator.css";
 
 export default function CalculatorPage() {
   const [farmId, setFarmId] = useState("");
-  const { result, isLoading, hasSearched, error } = useCalculator(farmId);
+  const [calcParams, setCalcParams] = useState<CalcParams>(DEFAULT_CALC_PARAMS);
+  const { result, isLoading, hasSearched, error } = useCalculator(farmId, calcParams);
   const { boundary, grid } = useFarmMap(result ? Number(farmId) : null);
+
+  const handleSearch = (newFarmId: string, newParams: CalcParams) => {
+    setFarmId(newFarmId);
+    setCalcParams(newParams);
+  };
 
   return (
     <div className="calc-view-container">
@@ -22,7 +29,7 @@ export default function CalculatorPage() {
       <CalculatorHeader />
 
       <div className="calc-controls-wrapper">
-        <CalculatorSearch onSearch={setFarmId} isLoading={isLoading} />
+        <CalculatorSearch onSearch={handleSearch} isLoading={isLoading} />
       </div>
 
       {error && (
@@ -40,6 +47,7 @@ export default function CalculatorPage() {
             boundary={boundary}
             grid={grid}
             optimalAngle={result.optimal_angle}
+            spacingY={calcParams.spacingY}
           />
         </div>
       )}
