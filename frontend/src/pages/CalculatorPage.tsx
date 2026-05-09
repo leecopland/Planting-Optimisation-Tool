@@ -12,7 +12,10 @@ import "@/components/calculator/calculator.css";
 export default function CalculatorPage() {
   const [farmId, setFarmId] = useState("");
   const [calcParams, setCalcParams] = useState<CalcParams>(DEFAULT_CALC_PARAMS);
-  const { result, isLoading, hasSearched, error } = useCalculator(farmId, calcParams);
+  const { result, isLoading, hasSearched, error } = useCalculator(
+    farmId,
+    calcParams
+  );
   const { boundary, grid } = useFarmMap(result ? Number(farmId) : null);
 
   const handleSearch = (newFarmId: string, newParams: CalcParams) => {

@@ -58,9 +58,7 @@ describe("useCalculator Hook", () => {
   });
 
   it("does not fetch when farmId is empty", () => {
-    const { result } = renderHook(() =>
-      useCalculator("", DEFAULT_CALC_PARAMS)
-    );
+    const { result } = renderHook(() => useCalculator("", DEFAULT_CALC_PARAMS));
 
     expect(global.fetch).not.toHaveBeenCalled();
     expect(result.current.hasSearched).toBe(false);

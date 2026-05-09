@@ -25,7 +25,9 @@ export default function CalculatorSearch({
   return (
     <div className="calc-controls">
       <div className="calc-input-group">
-        <label className="calc-label" htmlFor="calc-farm-id">Farm ID</label>
+        <label className="calc-label" htmlFor="calc-farm-id">
+          Farm ID
+        </label>
         <input
           id="calc-farm-id"
           type="number"
@@ -38,7 +40,9 @@ export default function CalculatorSearch({
       </div>
 
       <div className="calc-input-group">
-        <label className="calc-label" htmlFor="calc-spacing-x">Spacing X (m)</label>
+        <label className="calc-label" htmlFor="calc-spacing-x">
+          Spacing X (m)
+        </label>
         <input
           id="calc-spacing-x"
           type="number"
@@ -51,7 +55,9 @@ export default function CalculatorSearch({
       </div>
 
       <div className="calc-input-group">
-        <label className="calc-label" htmlFor="calc-spacing-y">Spacing Y (m)</label>
+        <label className="calc-label" htmlFor="calc-spacing-y">
+          Spacing Y (m)
+        </label>
         <input
           id="calc-spacing-y"
           type="number"
@@ -64,7 +70,9 @@ export default function CalculatorSearch({
       </div>
 
       <div className="calc-input-group">
-        <label className="calc-label" htmlFor="calc-max-slope">Max Slope (°)</label>
+        <label className="calc-label" htmlFor="calc-max-slope">
+          Max Slope (°)
+        </label>
         <input
           id="calc-max-slope"
           type="number"
