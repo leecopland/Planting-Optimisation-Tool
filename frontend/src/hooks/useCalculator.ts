@@ -50,13 +50,7 @@ export function useCalculator(farmId: string, params: CalcParams) {
     };
 
     fetchEstimation();
-  }, [
-    farmId,
-    params.spacingX,
-    params.spacingY,
-    params.maxSlope,
-    getAccessToken,
-  ]);
+  }, [farmId, params, getAccessToken]);
 
   return { result, isLoading, hasSearched, error };
 }

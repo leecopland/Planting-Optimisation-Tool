@@ -41,7 +41,14 @@ async def get_farm_boundary(
     db: AsyncSession = Depends(get_db_session),
     current_user: UserRead = Depends(get_current_user),
 ):
-    """Returns the farm boundary as a GeoJSON Feature. Requires any authenticated role."""
+    """
+    Returns the farm boundary as a GeoJSON Feature. Requires any authenticated role.
+
+    TODO: Officer-level ownership filtering is not applied here due to problems with the RBAC
+    implementation.
+    Officers are not directly associated with farms as owners in the current implementation.
+    Restrict to owned farms once the RBAC implementation is complete.
+    """
     boundary = await farm_service.get_farm_boundary(db, farm_id)
     if boundary is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Boundary not found for farm {farm_id}.")

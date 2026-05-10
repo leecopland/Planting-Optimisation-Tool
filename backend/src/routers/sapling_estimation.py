@@ -78,7 +78,14 @@ async def get_planting_grid(
     db: AsyncSession = Depends(get_db_session),
     current_user: UserRead = Depends(require_role(Role.OFFICER)),
 ):
-    """Returns saved planting estimate points for a farm as a GeoJSON FeatureCollection."""
+    """
+    Returns saved planting estimate points for a farm as a GeoJSON FeatureCollection.
+
+    TODO: Officer-level ownership filtering is not applied here due to problems with the RBAC
+    implementation.
+    Officers are not directly associated with farms as owners in the current implementation.
+    Restrict to owned farms once the RBAC implementation is complete.
+    """
     grid = await sapling_estimation_service.get_planting_grid(db, farm_id)
     if not grid["features"]:
         raise HTTPException(status_code=404, detail=f"No planting estimates found for farm {farm_id}.")
