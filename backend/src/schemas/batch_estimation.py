@@ -1,30 +1,28 @@
-from typing import Optional
+from typing import List, Optional
 
 from pydantic import BaseModel, ConfigDict
 
 
-class PlantingGridResponse(BaseModel):
-    type: str
-    features: list[dict]
-
-
-class SaplingEstimationRequest(BaseModel):
-    farm_id: int
+class SaplingBatchEstimationRequest(BaseModel):
     spacing_x: float
     spacing_y: float
     max_slope: float
 
 
-class SaplingEstimationResponse(BaseModel):
+class SaplingBatchEstimationItem(BaseModel):  # Estimation result for a single farm
     model_config = ConfigDict(from_attributes=True, populate_by_name=True)
     status: str = "success"
-    id: Optional[int] = None
+
+    farm_id: int
 
     pre_slope_count: Optional[int] = None
     aligned_count: Optional[int] = None
-
     optimal_angle: Optional[int] = None
-
-    # added rotational
     rotation_average: Optional[float] = None
     rotation_std_dev: Optional[float] = None
+
+
+class SaplingBatchEstimationResponse(BaseModel):
+    status: str = "success"
+    farm_count: int
+    results: List[SaplingBatchEstimationItem]
