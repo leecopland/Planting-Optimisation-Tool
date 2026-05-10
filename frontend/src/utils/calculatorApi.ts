@@ -33,7 +33,7 @@ export async function getSaplingEstimation(
   });
   if (!res.ok) {
     const data = await res.json();
-    throw new Error(data.message || "Failed to fetch estimation");
+    throw new Error(data.detail || "Failed to fetch estimation");
   }
   return res.json();
 }

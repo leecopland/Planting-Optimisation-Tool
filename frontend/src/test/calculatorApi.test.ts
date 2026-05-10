@@ -72,7 +72,7 @@ describe("calculatorApi", () => {
     it("throws the API error message on non-ok response", async () => {
       (global.fetch as Mock).mockResolvedValue({
         ok: false,
-        json: async () => ({ message: "Farm not found" }),
+        json: async () => ({ detail: "Farm not found" }),
       });
 
       await expect(getSaplingEstimation(42, PARAMS, TOKEN)).rejects.toThrow(

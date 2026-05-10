@@ -67,7 +67,7 @@ describe("useCalculator Hook", () => {
   it("sets error from API error message on non-ok response", async () => {
     (global.fetch as Mock).mockResolvedValue({
       ok: false,
-      json: async () => ({ message: "Farm not found" }),
+      json: async () => ({ detail: "Farm not found" }),
     });
 
     const { result } = renderHook(() =>

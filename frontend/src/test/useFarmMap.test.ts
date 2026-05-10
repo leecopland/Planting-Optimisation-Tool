@@ -86,7 +86,7 @@ describe("useFarmMap", () => {
     expect(result.current.grid).toBe(null);
   });
 
-  it("does not fetch when token is missing", async () => {
+  it("sets session expired error and does not fetch when token is missing", async () => {
     stableGetAccessToken.mockReturnValueOnce(null);
 
     const { result } = renderHook(() => useFarmMap(1));
@@ -94,5 +94,8 @@ describe("useFarmMap", () => {
     await waitFor(() => expect(result.current.isLoading).toBe(false));
 
     expect(global.fetch).not.toHaveBeenCalled();
+    expect(result.current.error).toBe(
+      "Your session has expired. Please log in again."
+    );
   });
 });
