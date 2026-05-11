@@ -138,10 +138,18 @@ describe("FeaturesSection", () => {
     );
 
     // Each title appears twice (defaultContent + hoverContent), so use getAllByText
-    expect(screen.getAllByText("Agroforestry Recommendations").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Sapling Estimation Calculator").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Generate Environmental Profile").length).toBeGreaterThan(0);
-    expect(screen.getAllByText("Species Information").length).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText("Agroforestry Recommendations").length
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText("Sapling Estimation Calculator").length
+    ).toBeGreaterThan(0);
+    expect(
+      screen.getAllByText("Generate Environmental Profile").length
+    ).toBeGreaterThan(0);
+    expect(screen.getAllByText("Species Information").length).toBeGreaterThan(
+      0
+    );
   });
 
   it("renders three links with correct hrefs", () => {
@@ -229,7 +237,10 @@ describe("Landing", () => {
               />
             }
           />
-          <Route path="/recommendation" element={<div>Recommendation Page</div>} />
+          <Route
+            path="/recommendation"
+            element={<div>Recommendation Page</div>}
+          />
         </Routes>
       </MemoryRouter>
     );
