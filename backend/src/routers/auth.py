@@ -63,13 +63,13 @@ async def resend_verification_email(
     user = result.scalar_one_or_none()
 
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Account not found",
-        )
+        return {"message": "If an unverified account exists for that email, a verification link has been sent"}
 
     if user.is_verified:
-        return {"message": "Account is already verified"}
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Account is already verified",
+        )
 
     await invalidate_user_tokens(
         db,
