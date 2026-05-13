@@ -47,12 +47,12 @@ export default function FarmManageActions({
           </button>
         )}
         {canEdit && (
-          <button className="btn-primary" onClick={onEdit}>
+          <button className="btn-secondary" onClick={onEdit}>
             ✏️ Edit
           </button>
         )}
         {canAdd && (
-          <button className="btn-primary" onClick={onAdd}>
+          <button className="btn-secondary" onClick={onAdd}>
             ➕ Register
           </button>
         )}
@@ -67,7 +67,7 @@ export default function FarmManageActions({
               undone.
             </p>
             <div className="delete-modal-actions">
-              <button className="btn-primary" onClick={handleCancelDelete}>
+              <button className="btn-secondary" onClick={handleCancelDelete}>
                 Cancel
               </button>
               <button className="btn-danger" onClick={handleConfirmDelete}>
